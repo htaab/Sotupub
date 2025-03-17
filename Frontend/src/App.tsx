@@ -4,7 +4,7 @@ import Sidebar from "./components/Nav/Sidebar";
 import Topbar from "./components/Nav/topbar/Topbar";
 import { Toaster } from "@/components/ui/sonner";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import Clients from "./pages/Client/Clients";
 import Login from "./pages/Auth/Login";
 import ProjectManagers from "./pages/ProjectManager/ProjectManagers";

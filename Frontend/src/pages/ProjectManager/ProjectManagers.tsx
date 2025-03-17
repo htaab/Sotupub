@@ -17,30 +17,40 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Trash2, UserPlus } from "lucide-react";
-import PmEditModal from "./PmEditModal";
+import { Edit, Trash2, UserPlus } from "lucide-react";
+import UserFormModal from "@/components/Forms/UserFormModal";
 
 const ProjectManager = () => {
+  const user = {
+    id: 1,
+    name: "name",
+    phone: "123456789",
+    email: "test@test.com",
+    number: 10,
+    picture: "",
+  };
   return (
     <div className="">
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <span>Project Managers</span>
+            <span>Project Managers List</span>
             <div>
-              <Link to={"/create-new-pm"} className="">
-                <Button variant="outline">
-                  <UserPlus />
-                  Add Manager
-                </Button>
-              </Link>
+              <UserFormModal
+                role="Project Manger"
+                triggerMessage={
+                  <Button variant="outline">
+                    <UserPlus />
+                    Add Manager
+                  </Button>
+                }
+              />
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader className="text-2xl">
+            <TableHeader className="text-xl">
               <TableRow>
                 <TableHead>Full name</TableHead>
                 <TableHead>Email</TableHead>
@@ -53,14 +63,20 @@ const ProjectManager = () => {
                 <TableCell>PM001</TableCell>
                 <TableCell>pm@mail.com</TableCell>
                 <TableCell>234567898</TableCell>
-                <TableCell className="text-right">
-                  <div>
-                    <PmEditModal />
-                    <Link to={"/project-managers"} className="">
-                      <Button variant="outline">
-                        <Trash2 />
-                      </Button>
-                    </Link>
+                <TableCell>
+                  <div className="flex justify-end gap-4">
+                    <UserFormModal
+                      role="Project Manager"
+                      triggerMessage={
+                        <Button variant={"outline"} size={"icon"}>
+                          <Edit className="text-green-700" />
+                        </Button>
+                      }
+                      user={user}
+                    />
+                    <Button variant="destructive">
+                      <Trash2 />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

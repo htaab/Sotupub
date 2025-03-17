@@ -15,7 +15,7 @@ const Projects = () => {
   return (
     <>
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Project</h1>
+        <h1 className="text-2xl font-bold">Projects List</h1>
         <Link to={`/projects/new-project`}>
           <Button>
             <FolderPlus />

@@ -17,24 +17,34 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Trash2, UserPlus } from "lucide-react";
-import ClientsEditModal from "./ClientsEditModal";
+import { Edit, Trash2, UserPlus } from "lucide-react";
+import UserFormModal from "@/components/Forms/UserFormModal";
 
 const Clients = () => {
+  const user = {
+    id: 4,
+    name: "name",
+    phone: "123456789",
+    email: "test@test.com",
+    number: 21,
+    picture: "",
+  };
   return (
     <div className="">
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <span>Clients</span>
+            <span>Clients List</span>
             <div>
-              <Link to={"/create-new-client"} className="">
-                <Button variant="outline">
-                  <UserPlus />
-                  Add Client
-                </Button>
-              </Link>
+              <UserFormModal
+                role="Client"
+                triggerMessage={
+                  <Button variant="outline">
+                    <UserPlus />
+                    Add Technician
+                  </Button>
+                }
+              />
             </div>
           </CardTitle>
         </CardHeader>
@@ -53,14 +63,20 @@ const Clients = () => {
                 <TableCell className="font-medium">user001</TableCell>
                 <TableCell>user@mail.com</TableCell>
                 <TableCell>23456789</TableCell>
-                <TableCell className="text-right">
-                  <div>
-                    <ClientsEditModal />
-                    <Link to={"/"} className="">
-                      <Button variant="outline">
-                        <Trash2 />
-                      </Button>
-                    </Link>
+                <TableCell>
+                  <div className="flex justify-end gap-4">
+                    <UserFormModal
+                      role="Client"
+                      triggerMessage={
+                        <Button variant={"outline"} size={"icon"}>
+                          <Edit className="text-green-700" />
+                        </Button>
+                      }
+                      user={user}
+                    />
+                    <Button variant="destructive">
+                      <Trash2 />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

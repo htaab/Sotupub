@@ -17,24 +17,34 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Trash2, UserPlus } from "lucide-react";
-import StockManagerEditModal from "./StockManagerEditModal";
+import { Edit, Trash2, UserPlus } from "lucide-react";
+import UserFormModal from "@/components/Forms/UserFormModal";
 
 const StockManager = () => {
+  const user = {
+    id: 2,
+    name: "name",
+    phone: "123456789",
+    email: "test@test.com",
+    number: 11,
+    picture: "",
+  };
   return (
     <div className="">
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <span>Project Managers</span>
+            <span>Stock Managers List</span>
             <div>
-              <Link to={"/create-new-sm"} className="">
-                <Button variant="outline">
-                  <UserPlus />
-                  Add Manager
-                </Button>
-              </Link>
+              <UserFormModal
+                role="Stock Manger"
+                triggerMessage={
+                  <Button variant="outline">
+                    <UserPlus />
+                    Add Manager
+                  </Button>
+                }
+              />
             </div>
           </CardTitle>
         </CardHeader>
@@ -50,17 +60,23 @@ const StockManager = () => {
             </TableHeader>
             <TableBody>
               <TableRow className="text-lg">
-                <TableCell>PM001</TableCell>
-                <TableCell>pm@mail.com</TableCell>
+                <TableCell>SM001</TableCell>
+                <TableCell>sm@mail.com</TableCell>
                 <TableCell>234567898</TableCell>
-                <TableCell className="text-right">
-                  <div>
-                    <StockManagerEditModal />
-                    <Link to={"/stock-managers"} className="">
-                      <Button variant="outline">
-                        <Trash2 />
-                      </Button>
-                    </Link>
+                <TableCell>
+                  <div className="flex justify-end gap-4">
+                    <UserFormModal
+                      role="Stock Manager"
+                      triggerMessage={
+                        <Button variant={"outline"} size={"icon"}>
+                          <Edit className="text-green-700" />
+                        </Button>
+                      }
+                      user={user}
+                    />
+                    <Button variant="destructive">
+                      <Trash2 />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

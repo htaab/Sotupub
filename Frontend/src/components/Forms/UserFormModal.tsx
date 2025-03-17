@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,28 +6,41 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Edit } from "lucide-react";
+} from "../ui/dialog";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { ReactNode } from "react";
 
-const TechEditModal = () => {
+interface User {
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  number?: number;
+  picture?: string;
+}
+
+const UserFormModal = ({
+  role,
+  triggerMessage,
+  user,
+}: {
+  role: string;
+  triggerMessage: ReactNode;
+  user?: User;
+}) => {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={"outline"} size={"icon"}>
-          <Edit className="text-green-700" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerMessage}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Technician</DialogTitle>
+          <DialogTitle>Edit {role}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
             <div className="flex flex-col gap-2">
-              <Label className="text-right"> Technician name</Label>
-              <Input className="col-span-3" />
+              <Label className="text-right">Name</Label>
+              <Input className="col-span-3" value={user?.name} />
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-right">Phone number</Label>
@@ -46,12 +59,17 @@ const TechEditModal = () => {
           </div>
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
             <div className="flex flex-col gap-2">
-              <Label className="text-right"> N°</Label>
+              <Label className="text-right">N°</Label>
               <Input className="col-span-3" />
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-right">Role</Label>
-              <Input className="col-span-3" placeholder="Client" />
+              <Input
+                disabled
+                className="col-span-3"
+                placeholder="PM"
+                defaultValue={role}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
@@ -69,4 +87,4 @@ const TechEditModal = () => {
   );
 };
 
-export default TechEditModal;
+export default UserFormModal;

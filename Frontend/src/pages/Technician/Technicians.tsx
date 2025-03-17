@@ -17,24 +17,34 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Trash2, UserPlus } from "lucide-react";
-import TechEditModal from "./TechEditModal";
+import { Edit, Trash2, UserPlus } from "lucide-react";
+import UserFormModal from "@/components/Forms/UserFormModal";
 
 const Technicians = () => {
+  const user = {
+    id: 3,
+    name: "name",
+    phone: "123456789",
+    email: "test@test.com",
+    number: 13,
+    picture: "",
+  };
   return (
     <div className="">
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <span>Technicians</span>
+            <span>Technicians List</span>
             <div>
-              <Link to={"/create-technician"} className="">
-                <Button variant="outline">
-                  <UserPlus />
-                  Add Technician
-                </Button>
-              </Link>
+              <UserFormModal
+                role="Technician"
+                triggerMessage={
+                  <Button variant="outline">
+                    <UserPlus />
+                    Add Technician
+                  </Button>
+                }
+              />
             </div>
           </CardTitle>
         </CardHeader>
@@ -53,14 +63,20 @@ const Technicians = () => {
                 <TableCell className="font-medium">tech001</TableCell>
                 <TableCell>tech@mail.com</TableCell>
                 <TableCell>23456789</TableCell>
-                <TableCell className="text-right">
-                  <div>
-                    <TechEditModal />
-                    <Link to={"/project-manager"} className="">
-                      <Button variant="outline">
-                        <Trash2 />
-                      </Button>
-                    </Link>
+                <TableCell>
+                  <div className="flex justify-end gap-4">
+                    <UserFormModal
+                      role="Technician"
+                      triggerMessage={
+                        <Button variant={"outline"} size={"icon"}>
+                          <Edit className="text-green-700" />
+                        </Button>
+                      }
+                      user={user}
+                    />
+                    <Button variant="destructive">
+                      <Trash2 />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
