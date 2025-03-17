@@ -10,16 +10,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  BadgeDollarSign,
-  BookText,
-  BookUser,
   LayoutDashboard,
-  LayoutList,
   Menu,
-  Notebook,
-  Settings,
-  UserCog,
   UsersRound,
+  FolderKanban,
+  PackageSearch,
+  CalendarRange,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
@@ -31,49 +27,39 @@ const navItems = [
     link: "/",
   },
   {
-    title: "Blogs",
-    icon: <BookText />,
-    link: "/blogs",
-  },
-  {
-    title: "Bookings",
-    icon: <Notebook />,
-    link: "/bookings",
-  },
-  {
-    title: "Categories",
-    icon: <LayoutList />,
-    link: "/Categories",
-  },
-  {
-    title: "Services",
-    icon: <BadgeDollarSign />,
-    link: "/services",
-  },
-  {
-    title: "Tnkers Pro",
-    icon: <UserCog />,
-    link: "/tnkerspro",
-  },
-  {
-    title: "Tnkers",
+    title: "Project manager",
     icon: <UsersRound />,
-    link: "/tnkers",
+    link: "/project-managers",
   },
   {
-    title: "Agencies",
-    icon: <BookUser />,
-    link: "/agencies",
+    title: "Technicians",
+    icon: <UsersRound />,
+    link: "/technicians",
   },
-  // {
-  //     title: "Plans",
-  //     icon: <Banknote />,
-  //     link: "/plans",
-  // },
   {
-    title: "Settings",
-    icon: <Settings />,
-    link: "/settings",
+    title: "Stock managers",
+    icon: <UsersRound />,
+    link: "/stock-managers",
+  },
+  {
+    title: "Clients",
+    icon: <UsersRound />,
+    link: "/clients",
+  },
+  {
+    title: "Projects",
+    icon: <FolderKanban />,
+    link: "/projects",
+  },
+  {
+    title: "Products",
+    icon: <PackageSearch />,
+    link: "/products",
+  },
+  {
+    title: "Calendar",
+    icon: <CalendarRange />,
+    link: "/calendar",
   },
 ];
 

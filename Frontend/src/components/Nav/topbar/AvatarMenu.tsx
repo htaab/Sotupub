@@ -12,8 +12,8 @@ export function AvatarMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer border hover:shadow-lg">
-          <AvatarImage src="/images/Logo Tinker f.svg" alt="avatar" />
-          <AvatarFallback className="text-center">Tnker Admin</AvatarFallback>
+          <AvatarImage src="https://github.com/shadcn.png" alt="avatar" />
+          <AvatarFallback className="text-center">User</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 me-5">

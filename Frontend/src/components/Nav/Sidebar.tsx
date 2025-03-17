@@ -2,11 +2,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
-  BookText,
-  Notebook,
-  LayoutList,
-  BadgeDollarSign,
   UsersRound,
+  PackageSearch,
+  FolderKanban,
+  CalendarRange,
   Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -25,29 +24,39 @@ const navItems = [
     link: "/",
   },
   {
-    title: "Blogs",
-    icon: <BookText />,
-    link: "/blogs",
-  },
-  {
-    title: "Bookings",
-    icon: <Notebook />,
-    link: "/bookings",
-  },
-  {
-    title: "Categories",
-    icon: <LayoutList />,
-    link: "/categories",
-  },
-  {
-    title: "Services",
-    icon: <BadgeDollarSign />,
-    link: "/services",
-  },
-  {
-    title: "Tnkers",
+    title: "Project manager",
     icon: <UsersRound />,
-    link: "/tnkers",
+    link: "/project-managers",
+  },
+  {
+    title: "Technicians",
+    icon: <UsersRound />,
+    link: "/technicians",
+  },
+  {
+    title: "Stock managers",
+    icon: <UsersRound />,
+    link: "/stock-managers",
+  },
+  {
+    title: "Clients",
+    icon: <UsersRound />,
+    link: "/clients",
+  },
+  {
+    title: "Projects",
+    icon: <FolderKanban />,
+    link: "/projects",
+  },
+  {
+    title: "Products",
+    icon: <PackageSearch />,
+    link: "/products",
+  },
+  {
+    title: "Calendar",
+    icon: <CalendarRange />,
+    link: "/calendar",
   },
 ];
 
@@ -150,10 +159,11 @@ const Sidebar = ({
             </Link>
             <div className="flex items-center justify-center">
               <Avatar className="h-14 w-14 border">
-                <AvatarImage src="/images/Logo Tinker f.svg" alt="@shadcn" />
-                <AvatarFallback className="text-center">
-                  Tnker Admin
-                </AvatarFallback>
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="@shadcn"
+                />
+                <AvatarFallback className="text-center">User</AvatarFallback>
               </Avatar>
               <div
                 className={`flex flex-col overflow-hidden transition-all ${
