@@ -90,17 +90,10 @@ const SheetNav = () => {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent
-        side="left"
-        className="bg-gradient-to-br from-foreground/5 overflow-scroll"
-      >
+      <SheetContent side="left" className="overflow-scroll">
         <SheetHeader>
           <SheetTitle>
-            <img
-              src={logoSrc}
-              className={`overflow-hidden transition-all`}
-              alt=""
-            />
+            <img src={logoSrc} alt="Logo" />
           </SheetTitle>
         </SheetHeader>
         {navItems.map((item, index) => (
@@ -129,8 +122,8 @@ const SheetNav = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h4 className="font-semibold">Hello Tnker</h4>
-              <span className="text-xs">tntinker7@gmail.com</span>
+              <h4 className="font-semibold">Hello User</h4>
+              <span className="text-xs">user@gmail.com</span>
             </div>
           </div>
         </SheetFooter>

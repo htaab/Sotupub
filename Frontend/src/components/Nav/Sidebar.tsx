@@ -6,7 +6,6 @@ import {
   PackageSearch,
   FolderKanban,
   CalendarRange,
-  Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -17,48 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useLocation } from "react-router-dom";
 
 // List of navigation items with title, icon, active state, and link
-const navItems = [
-  {
-    title: "Dashboard",
-    icon: <LayoutDashboard />,
-    link: "/",
-  },
-  {
-    title: "Project manager",
-    icon: <UsersRound />,
-    link: "/project-managers",
-  },
-  {
-    title: "Technicians",
-    icon: <UsersRound />,
-    link: "/technicians",
-  },
-  {
-    title: "Stock managers",
-    icon: <UsersRound />,
-    link: "/stock-managers",
-  },
-  {
-    title: "Clients",
-    icon: <UsersRound />,
-    link: "/clients",
-  },
-  {
-    title: "Projects",
-    icon: <FolderKanban />,
-    link: "/projects",
-  },
-  {
-    title: "Products",
-    icon: <PackageSearch />,
-    link: "/products",
-  },
-  {
-    title: "Calendar",
-    icon: <CalendarRange />,
-    link: "/calendar",
-  },
-];
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   expanded: boolean;
@@ -74,6 +31,59 @@ const Sidebar = ({
   const location = useLocation();
   // the activeLink state is used to highlight the current active item of the sidebar.
   const [activeLink, setActiveLink] = useState("");
+
+  const role = "admin";
+
+  const navItems = [
+    {
+      title: "Dashboard",
+      icon: <LayoutDashboard />,
+      link: "/",
+      role: ["admin", "technicien", "stockist", "client"],
+    },
+    {
+      title: "Project manager",
+      icon: <UsersRound />,
+      link: "/project-managers",
+      role: ["admin"],
+    },
+    {
+      title: "Technicians",
+      icon: <UsersRound />,
+      link: "/technicians",
+      role: ["admin"],
+    },
+    {
+      title: "Stock managers",
+      icon: <UsersRound />,
+      link: "/stock-managers",
+      role: ["admin"],
+    },
+    {
+      title: "Clients",
+      icon: <UsersRound />,
+      link: "/clients",
+      role: ["admin"],
+    },
+    {
+      title: "Projects",
+      icon: <FolderKanban />,
+      link: "/projects",
+      role: ["admin", "technicien", "stockist", "client"],
+    },
+    {
+      title: "Products",
+      icon: <PackageSearch />,
+      link: "/products",
+      role: ["admin"],
+    },
+    {
+      title: "Calendar",
+      icon: <CalendarRange />,
+      link: "/calendar",
+      role: ["admin"],
+    },
+  ];
   // the expanded state of our sidebar. this is a hook that keeps track of whether our sidebar is currently expanded or not.
 
   useEffect(() => {
@@ -113,50 +123,33 @@ const Sidebar = ({
       <div className="overflow-auto h-full custom-scrollbar">
         <div className="min-h-full flex flex-col justify-between">
           <CardContent>
-            {navItems.map((item, index) => (
-              <Link
-                to={item.link}
-                key={index}
-                className={`mb-2 p-3 flex items-center last:mb-0 cursor-pointer rounded-md transition-all 
+            {navItems
+              .filter((item) => item.role.includes(role))
+              .map((item, index) => (
+                <Link
+                  to={item.link}
+                  key={index}
+                  className={`mb-2 p-3 flex items-center last:mb-0 cursor-pointer rounded-md transition-all 
                                 ${
                                   item.link === activeLink
                                     ? "bg-primary/15 hover:bg-primary/50 dark:bg-primary/75 dark:hover:bg-primary"
                                     : "hover:bg-secondary"
                                 }
                                 ${expanded ? "" : "flex-col"}`}
-              >
-                {item.icon}
-                <p
-                  className={`${
-                    expanded ? "text-lg" : "text-sm hidden"
-                  } text-center font-medium leading-none ms-1`}
                 >
-                  {item.title}
-                </p>
-              </Link>
-            ))}
+                  {item.icon}
+                  <p
+                    className={`${
+                      expanded ? "text-lg" : "text-sm hidden"
+                    } text-center font-medium leading-none ms-1`}
+                  >
+                    {item.title}
+                  </p>
+                </Link>
+              ))}
           </CardContent>
           {/* end Content */}
           <CardContent>
-            <Link
-              to={"/settings"}
-              className={`mb-2 p-3 flex items-center last:mb-0 cursor-pointer rounded-md transition-all 
-                            ${
-                              "/settings" === activeLink
-                                ? "bg-primary/15 hover:bg-primary/50 dark:bg-primary/75 dark:hover:bg-primary"
-                                : "hover:bg-secondary"
-                            }
-                            ${expanded ? "" : "flex-col"}`}
-            >
-              <Settings />
-              <p
-                className={`${
-                  expanded ? "text-lg" : "text-sm"
-                }  font-medium leading-none ms-1`}
-              >
-                Settings
-              </p>
-            </Link>
             <div className="flex items-center justify-center">
               <Avatar className="h-14 w-14 border">
                 <AvatarImage

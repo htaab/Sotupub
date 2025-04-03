@@ -16,9 +16,7 @@ import Products from "./pages/product/Products";
 import ProjectTasks from "./pages/Project/ProjectTasks";
 import ProjectForm from "./pages/Project/ProjectForm";
 import ClientForm from "./pages/Client/ClientForm";
-import PmForm from "./pages/ProjectManager/PmForm";
-import TechnicianForm from "./pages/Technician/TechnicianForm";
-import StockManagerForm from "./pages/StockManager/StockManagerForm";
+
 const Layout = () => {
   const [expanded, setExpanded] = useState(true);
   return (
@@ -57,24 +55,12 @@ function App() {
           element: <StockManager />,
         },
         {
-          path: "/create-new-sm",
-          element: <StockManagerForm />,
-        },
-        {
           path: "/technicians",
           element: <Technicians />,
         },
         {
-          path: "/create-technician",
-          element: <TechnicianForm />,
-        },
-        {
           path: "/project-managers",
           element: <ProjectManagers />,
-        },
-        {
-          path: "/create-new-pm",
-          element: <PmForm />,
         },
         {
           path: "/clients",

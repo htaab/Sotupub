@@ -16,24 +16,25 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit } from "lucide-react";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { DatePicker } from "@/components/DatePicker";
 
-const ProjectsEditModal = () => {
+const ProjectsModal = ({
+  message,
+  project,
+}: {
+  message: ReactNode;
+  project?: object;
+}) => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant={"outline"} size={"icon"}>
-          <Edit className="text-green-700" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{message}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit project</DialogTitle>
+          <DialogTitle>{project ? "Edit" : "Add"} project</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
@@ -110,4 +111,4 @@ const ProjectsEditModal = () => {
   );
 };
 
-export default ProjectsEditModal;
+export default ProjectsModal;
