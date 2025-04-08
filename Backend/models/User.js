@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,23 +19,37 @@ const userSchema = new mongoose.Schema(
     },
     image: { type: String },
     phoneNumber: { type: String },
-    address: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String
-    },
-    assignedProjects: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project"
-    }],
-    assignedTasks: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Task"
-    }],
+    address: { type: String },
+    assignedProjects: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project",
+      },
+    ],
+    assignedTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
+    isActive: { type: Boolean, default: true },
+    resetPasswordToken: String,
+    resetPasswordExpiry: Date,
   },
   { timestamps: true }
 );
+
+// Keep this method for password verification during login
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  try {
+    if (!enteredPassword) {
+      return false;
+    }
+    return await bcrypt.compare(enteredPassword, this.password);
+  } catch (error) {
+    console.error("Error comparing passwords:", error);
+    return false;
+  }
+};
 
 export default mongoose.model("User", userSchema);
