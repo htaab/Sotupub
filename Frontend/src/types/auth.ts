@@ -6,12 +6,19 @@ export interface User {
   email: string;
   role: UserRole;
   isActive: boolean;
+  phoneNumber?: string;
+  address?: string;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface AuthResponse {
+export interface ApiResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+  success?: boolean;
+  message?: string;
 }
 
 export interface LoginCredentials {

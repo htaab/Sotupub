@@ -10,6 +10,7 @@ import { useAuthStore } from "@/store/auth-store";
 import api from "@/lib/axios";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { ApiResponse } from "@/types/auth";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -46,34 +47,24 @@ export default function Login() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.post("/auth/login", data);
+      const response = await api.post<ApiResponse>("/auth/login", data);
+      console.log(response.data);
+
+      const { user, accessToken, refreshToken } = response.data
+
       if (response.status !== 200) { throw new Error(response.data.message); }
 
-      const userData = response.data;
-      // Check if the response contains an error message
-      if (userData.success === false) {
-        throw new Error(userData.message); // Throw an erro
-      }
-
-      // Validate required fields
-      if (!userData._id || !userData.accessToken || !userData.refreshToken) {
+      // // Validate required fields
+      if (!user || !accessToken || !refreshToken) {
         throw new Error('Invalid response data');
       }
 
-      const user = {
-        _id: userData._id,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role,
-        isActive: userData.isActive,
-      };
-
-      // Validate user is active
+      // // Validate user is active
       if (!user.isActive) {
         throw new Error('Account is inactive');
       }
 
-      setAuth(user, userData.accessToken, userData.refreshToken);
+      setAuth(user, accessToken, refreshToken);
       toast.success("Login successful!");
 
       const from = location.state?.from?.pathname || "/";

@@ -41,9 +41,9 @@ const protect = async (req, res, next) => {
       }
 
       // Fetch user from database (excluding sensitive fields)
-      const user = await User.findById(decoded.id)
-        .select("-password -resetPasswordToken -resetPasswordExpiry")
-        .populate("assignedProjects", "name status beginDate endDate");
+      const user = await User.findById(decoded.id).select(
+        "-password -resetPasswordToken -resetPasswordExpiry"
+      );
 
       if (!user) {
         return res.status(401).json({

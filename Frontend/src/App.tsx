@@ -7,6 +7,7 @@ import Sidebar from "./components/Nav/Sidebar";
 import Topbar from "./components/Nav/topbar/Topbar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ProtectedRoute } from "./components/Auth/protected-route";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Lazy load pages
 const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
@@ -21,6 +22,7 @@ const Products = lazy(() => import("./pages/product/Products"));
 const ProjectTasks = lazy(() => import("./pages/Project/ProjectTasks"));
 const ProjectForm = lazy(() => import("./pages/Project/ProjectForm"));
 const ClientForm = lazy(() => import("./pages/Client/ClientForm"));
+const Users = lazy(() => import("./pages/Users/Users"));
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -75,6 +77,14 @@ const routes = [
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <StockManager />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "/users",
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Users />
           </ProtectedRoute>
         )
       },
@@ -167,7 +177,12 @@ const routes = [
 
 function App() {
   const router = createBrowserRouter(routes);
-  return <RouterProvider router={router} />;
+  const queryClient = new QueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }
 
 export default App;

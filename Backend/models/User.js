@@ -20,18 +20,6 @@ const userSchema = new mongoose.Schema(
     image: { type: String },
     phoneNumber: { type: String },
     address: { type: String },
-    assignedProjects: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-      },
-    ],
-    assignedTasks: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Task",
-      },
-    ],
     isActive: { type: Boolean, default: true },
     resetPasswordToken: String,
     resetPasswordExpiry: Date,

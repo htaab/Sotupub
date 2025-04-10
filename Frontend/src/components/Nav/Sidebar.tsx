@@ -42,6 +42,12 @@ const Sidebar = ({
       role: ["admin", "technicien", "stockist", "client"],
     },
     {
+      title: "Users",
+      icon: <UsersRound />,
+      link: "/users",
+      role: ["admin"],
+    },
+    {
       title: "Project manager",
       icon: <UsersRound />,
       link: "/project-managers",
@@ -93,8 +99,7 @@ const Sidebar = ({
   return (
     <Card
       className={cn(
-        `${
-          expanded ? "w-[250px]" : "w-[150px]"
+        `${expanded ? "w-[250px]" : "w-[150px]"
         } fixed h-full transition-all hidden xl:flex flex-col rounded-none`,
         className
       )}
@@ -104,9 +109,8 @@ const Sidebar = ({
         <CardTitle className="flex justify-center">
           <img
             src={""}
-            className={`overflow-hidden transition-all ${
-              expanded ? "w-3/4" : "w-full"
-            } `}
+            className={`overflow-hidden transition-all ${expanded ? "w-3/4" : "w-full"
+              } `}
             alt=" Logo"
           />
         </CardTitle>
@@ -130,18 +134,16 @@ const Sidebar = ({
                   to={item.link}
                   key={index}
                   className={`mb-2 p-3 flex items-center last:mb-0 cursor-pointer rounded-md transition-all 
-                                ${
-                                  item.link === activeLink
-                                    ? "bg-primary/15 hover:bg-primary/50 dark:bg-primary/75 dark:hover:bg-primary"
-                                    : "hover:bg-secondary"
-                                }
+                                ${item.link === activeLink
+                      ? "bg-primary/15 hover:bg-primary/50 dark:bg-primary/75 dark:hover:bg-primary"
+                      : "hover:bg-secondary"
+                    }
                                 ${expanded ? "" : "flex-col"}`}
                 >
                   {item.icon}
                   <p
-                    className={`${
-                      expanded ? "text-lg" : "text-sm hidden"
-                    } text-center font-medium leading-none ms-1`}
+                    className={`${expanded ? "text-lg" : "text-sm hidden"
+                      } text-center font-medium leading-none ms-1`}
                   >
                     {item.title}
                   </p>
@@ -159,9 +161,8 @@ const Sidebar = ({
                 <AvatarFallback className="text-center">User</AvatarFallback>
               </Avatar>
               <div
-                className={`flex flex-col overflow-hidden transition-all ${
-                  expanded ? "w-52 ml-3" : "w-0 opacity-0"
-                }`}
+                className={`flex flex-col overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0 opacity-0"
+                  }`}
               >
                 <h4 className="font-semibold">User</h4>
                 <span className="text-xs">user.email@gmail.com</span>

@@ -1,157 +1,106 @@
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { validateEmail } from "../utils/validators.js";
-import { successResponse, errorResponse } from "../utils/apiResponse.js";
-import { hashPassword } from "../utils/passwordUtils.js";
-import { sanitizeUser } from "../utils/validators.js";
 
-// Get current user profile
-const getUserProfile = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
-    return successResponse(res, sanitizeUser(user));
-  } catch (error) {
-    return errorResponse(res, "Error fetching profile", 500);
-  }
-};
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      role,
+      isActive,
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
 
-// Update user profile
-const updateUserProfile = async (req, res) => {
-  try {
-    const { name, email, phoneNumber, address } = req.body;
-
-    if (email && !validateEmail(email)) {
-      return errorResponse(res, "Invalid email format", 400);
+    // Validate role if provided
+    if (
+      role &&
+      ![
+        "admin",
+        "client",
+        "project manager",
+        "stock manager",
+        "technician",
+      ].includes(role)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role specified",
+      });
     }
 
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return errorResponse(res, "User not found", 404);
-    }
-
-    // Check if email is already taken by another user
-    if (email && email !== user.email) {
-      const emailExists = await User.findOne({ email });
-      if (emailExists) {
-        return errorResponse(res, "Email already in use", 400);
+    // Validate isActive if provided
+    if (isActive !== undefined && isActive !== null) {
+      const boolValue = isActive.toLowerCase();
+      if (boolValue !== "true" && boolValue !== "false") {
+        return res.status(400).json({
+          success: false,
+          message: "isActive must be a boolean value",
+        });
       }
     }
 
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.phoneNumber = phoneNumber || user.phoneNumber;
-    user.address = address || user.address;
+    // Validate order parameter
+    if (order && !["asc", "desc"].includes(order.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: "Order must be 'asc' or 'desc'",
+      });
+    }
 
-    const updatedUser = await user.save();
-    return successResponse(res, sanitizeUser(updatedUser));
+    // Build query
+    const query = {};
+
+    // Search by name or email
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Filter by role
+    if (role) {
+      query.role = role;
+    }
+
+    // Filter by active status
+    if (isActive !== undefined && isActive !== null) {
+      query.isActive = isActive.toLowerCase() === "true";
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Execute query with pagination and sorting
+    const users = await User.find(query)
+      .select("-password -refreshToken")
+      .sort({ [sort]: order === "asc" ? 1 : -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const total = await User.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          total,
+          page: parseInt(page),
+          pages: Math.ceil(total / parseInt(limit)),
+          limit: parseInt(limit),
+        },
+      },
+    });
   } catch (error) {
-    return errorResponse(res, "Error updating profile", 500);
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching users",
+    });
   }
 };
 
-// Change password
-const changePassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return errorResponse(res, "User not found", 404);
-    }
-
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return errorResponse(res, "Current password is incorrect", 400);
-    }
-
-    user.password = await hashPassword(newPassword);
-    await user.save();
-    
-    return successResponse(res, { message: "Password updated successfully" });
-  } catch (error) {
-    return errorResponse(res, "Error changing password", 500);
-  }
-};
-
-// Get all users (admin only)
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    const sanitizedUsers = users.map(user => sanitizeUser(user));
-    return successResponse(res, sanitizedUsers);
-  } catch (error) {
-    return errorResponse(res, "Error fetching users", 500);
-  }
-};
-
-// Get user by ID (admin only)
-const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select("-password");
-    if (!user) {
-      return errorResponse(res, "User not found", 404);
-    }
-    return successResponse(res, sanitizeUser(user));
-  } catch (error) {
-    return errorResponse(res, "Error fetching user", 500);
-  }
-};
-
-// Update user (admin only)
-const updateUser = async (req, res) => {
-  try {
-    const { name, email, role } = req.body;
-    
-    if (email && !validateEmail(email)) {
-      return errorResponse(res, "Invalid email format", 400);
-    }
-
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return errorResponse(res, "User not found", 404);
-    }
-
-    // Check if email is already taken by another user
-    if (email && email !== user.email) {
-      const emailExists = await User.findOne({ email });
-      if (emailExists) {
-        return errorResponse(res, "Email already in use", 400);
-      }
-    }
-
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.role = role || user.role;
-
-    const updatedUser = await user.save();
-    return successResponse(res, sanitizeUser(updatedUser));
-  } catch (error) {
-    return errorResponse(res, "Error updating user", 500);
-  }
-};
-
-// Delete user (admin only)
-const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return errorResponse(res, "User not found", 404);
-    }
-
-    await user.deleteOne();
-    return successResponse(res, { message: "User deleted successfully" });
-  } catch (error) {
-    return errorResponse(res, "Error deleting user", 500);
-  }
-};
-
-export {
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
-};
+export { getUsers };
