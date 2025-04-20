@@ -59,10 +59,29 @@ const login = async (req, res) => {
 // Refresh token
 const refreshToken = async (req, res) => {
   try {
-    // Use the pre-verified user data from middleware
-    const { id: userId, role, isActive } = req.refreshUser;
+    const { refreshToken } = req.body;
 
-    if (!isActive) {
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token required",
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // Get user from database
+    const user = await User.findById(decoded.id).select("role isActive").lean();
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.isActive) {
       return res.status(401).json({
         success: false,
         message: "Account is deactivated",
@@ -70,23 +89,40 @@ const refreshToken = async (req, res) => {
     }
 
     // Generate new tokens
-    const tokens = generateTokens(userId);
+    const tokens = generateTokens(user._id);
 
-    // Return new tokens with minimal user info
-    // Return in the expected format
+    // Return new tokens with user info
     return res.status(200).json({
       success: true,
       message: "Token refreshed successfully",
       user: {
-        _id: userId,
-        role,
-        isActive,
+        _id: user._id,
+        role: user.role,
+        isActive: user.isActive,
       },
       ...tokens,
     });
   } catch (error) {
     console.error("Token refresh error:", error);
-    return errorResponse(res, "Error refreshing token", 500);
+
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+    }
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token expired",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Error refreshing token",
+    });
   }
 };
 

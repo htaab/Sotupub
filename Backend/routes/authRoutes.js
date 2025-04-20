@@ -55,7 +55,7 @@ router.post("/login", login);
  *       401:
  *         description: Invalid refresh token
  */
-router.post("/refresh-token", verifyRefreshToken, refreshToken);
+router.post("/refresh-token", refreshToken);
 
 /**
  * @swagger

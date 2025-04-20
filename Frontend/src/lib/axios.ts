@@ -5,6 +5,16 @@ import { ApiResponse } from '@/types/auth';
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
     _skipAuthRefresh?: boolean;
     _retry?: boolean;
+    headers?: {
+        'Content-Type'?: string;
+        Authorization?: string;
+        [key: string]: string | undefined;
+    };
+}
+
+interface ErrorResponse {
+    success: boolean;
+    message: string;
 }
 
 const api = axios.create({
@@ -12,8 +22,8 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    validateStatus: (status) => status >= 200 && status < 500,
     timeout: 15000,
+    withCredentials: true,
 } as CustomAxiosRequestConfig);
 
 api.interceptors.request.use(
@@ -36,17 +46,18 @@ api.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
         if (!error.response || !error.config) {
-            return Promise.reject(new Error('Network Error'));
+            return Promise.reject(new Error('Server not responding. Please check your connection.'));
         }
 
         const originalRequest = error.config as CustomAxiosRequestConfig;
 
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response.status === 401 && !originalRequest._retry &&
+            !originalRequest.url?.includes('/auth/login') &&
+            !originalRequest.url?.includes('/auth/register')) {
             originalRequest._retry = true;
 
             try {
                 const refreshToken = useAuthStore.getState().refreshToken;
-
                 if (!refreshToken) {
                     throw new Error('No refresh token available');
                 }
@@ -55,36 +66,31 @@ api.interceptors.response.use(
                     '/auth/refresh-token',
                     { refreshToken },
                     {
+                        _skipAuthRefresh: true,
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }
+                    } as CustomAxiosRequestConfig
                 );
 
-                if (response.data.success === false) {
-                    throw new Error(response.data.message || 'Invalid refresh token response');
+                if (!response.data.success || !response.data.accessToken || !response.data.refreshToken || !response.data.user) {
+                    throw new Error('Invalid refresh token response');
                 }
 
                 const { accessToken, refreshToken: newRefreshToken, user } = response.data;
-
-                if (!accessToken || !newRefreshToken || !user) {
-                    throw new Error('Missing required fields in refresh token response');
-                }
-
                 useAuthStore.getState().setAuth(user, accessToken, newRefreshToken);
 
-                if (originalRequest.headers) {
-                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                }
+                originalRequest.headers = {
+                    ...originalRequest.headers,
+                    Authorization: `Bearer ${accessToken}`
+                };
 
                 return api(originalRequest);
 
             } catch (refreshError) {
                 useAuthStore.getState().logout();
-                if (typeof window !== 'undefined') {
-                    window.location.href = '/login';
-                }
-                return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Token refresh failed'));
+                window.location.href = '/login';
+                return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Session expired. Please login again.'));
             }
         }
 
@@ -102,7 +108,8 @@ api.interceptors.response.use(
         };
 
         const status = error.response.status;
-        const errorMessage = errorMessages[status] || 'An unexpected error occurred';
+        const backendMessage = (error.response?.data as ErrorResponse)?.message;
+        const errorMessage = backendMessage || errorMessages[status] || 'An unexpected error occurred';
 
         console.error(`${status}: ${errorMessage}`, {
             url: error.config?.url,

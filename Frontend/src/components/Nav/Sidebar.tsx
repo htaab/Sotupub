@@ -107,12 +107,12 @@ const Sidebar = ({
     >
       <CardHeader className="relative mb-3">
         <CardTitle className="flex justify-center">
-          <img
+          {/* <img
             src={""}
             className={`overflow-hidden transition-all ${expanded ? "w-3/4" : "w-full"
               } `}
             alt=" Logo"
-          />
+          /> */}
         </CardTitle>
         <Button
           variant="outline"

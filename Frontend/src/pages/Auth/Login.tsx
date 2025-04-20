@@ -48,7 +48,6 @@ export default function Login() {
       setIsLoading(true);
       setError(null);
       const response = await api.post<ApiResponse>("/auth/login", data);
-      console.log(response.data);
 
       const { user, accessToken, refreshToken } = response.data
 
@@ -72,7 +71,15 @@ export default function Login() {
 
     } catch (error: unknown) {
       console.error('Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : "An error occurred during login";
+      let errorMessage = ""
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { message?: string } } };
+        errorMessage = axiosError.response?.data?.message || 'An error occurred during login'
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = 'An error occurred during login';
+      }
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

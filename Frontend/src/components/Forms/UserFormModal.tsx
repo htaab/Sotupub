@@ -10,36 +10,32 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { ReactNode } from "react";
+import { User } from "@/types/auth";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface User {
-  name?: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  number?: number;
-  picture?: string;
-}
-
-const UserFormModal = ({
-  role,
-  triggerMessage,
-  user,
-}: {
-  role: string;
+interface UserFormModalProps {
   triggerMessage: ReactNode;
   user?: User;
-}) => {
+}
+
+const UserFormModal = ({ triggerMessage, user }: UserFormModalProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{triggerMessage}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit {role}</DialogTitle>
+          <DialogTitle>{user ? `edit ${user.role}` : "Add user"}</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
             <div className="flex flex-col gap-2">
-              <Label className="text-right">Name</Label>
+              <Label className="text-right">Full name</Label>
               <Input className="col-span-3" value={user?.name} />
             </div>
             <div className="flex flex-col gap-2">
@@ -64,12 +60,17 @@ const UserFormModal = ({
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-right">Role</Label>
-              <Input
-                disabled
-                className="col-span-3"
-                placeholder="PM"
-                defaultValue={role}
-              />
+              <Select defaultValue={user?.role}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="client">Client</SelectItem>
+                  <SelectItem value="project manager">Project Manager</SelectItem>
+                  <SelectItem value="stock manager">Stock Manager</SelectItem>
+                  <SelectItem value="technician">Technician</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="flex flex-col gap-5 md:flex-row md:justify-between">
@@ -80,7 +81,7 @@ const UserFormModal = ({
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Save changes</Button>
+          <Button type="submit">{user ? "Save Changes" : "Add User"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
