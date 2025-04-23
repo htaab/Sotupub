@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'project_manager' | 'technician' | 'stock_manager' | 'client';
+export type UserRole = 'admin' | 'client' | 'project manager' | 'stock manager' | 'technician';
 
 export interface User {
   _id: string;
@@ -11,6 +11,7 @@ export interface User {
   image?: string;
   createdAt: string;
   updatedAt: string;
+  matriculeNumber?: number;
 }
 
 export interface ApiResponse {

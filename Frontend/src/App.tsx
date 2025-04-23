@@ -91,7 +91,7 @@ const routes = [
       {
         path: "/technicians",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project_manager']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager']}>
             <Technicians />
           </ProtectedRoute>
         )
@@ -107,7 +107,7 @@ const routes = [
       {
         path: "/clients",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project_manager']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager']}>
             <Clients />
           </ProtectedRoute>
         )
@@ -123,7 +123,7 @@ const routes = [
       {
         path: "/projects",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project_manager']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager']}>
             <Projects />
           </ProtectedRoute>
         )
@@ -139,7 +139,7 @@ const routes = [
       {
         path: "/projects/:id/Tasks",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project_manager', 'technician']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager', 'technician']}>
             <ProjectTasks />
           </ProtectedRoute>
         )
@@ -147,7 +147,7 @@ const routes = [
       {
         path: "/products",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'stock_manager']}>
+          <ProtectedRoute allowedRoles={['admin', 'stock manager']}>
             <Products />
           </ProtectedRoute>
         )

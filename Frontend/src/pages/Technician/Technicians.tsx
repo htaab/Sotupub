@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash2, UserPlus } from "lucide-react";
-import UserFormModal from "@/components/Forms/UserFormModal";
+import UserFormModal from "@/components/Forms/user/UserFormModal";
 
 const Technicians = () => {
   const user = {

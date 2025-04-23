@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import specs from "./config/swagger.js";
 import connectDB from "./config/db.js";
 import initializeAdmin from "./utils/initAdmin.js";
+import path from "path";
 
 // Route imports
 import authRoutes from "./routes/authRoutes.js";
@@ -44,6 +45,8 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 // app.use("/api/projects", projectRoutes);

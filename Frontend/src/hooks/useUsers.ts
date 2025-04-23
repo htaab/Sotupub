@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { debounce } from "lodash";
 import { userService } from '@/services/userService';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export const useUsers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [isCreating, setIsCreating] = useState(false);
 
     // Memoize default values for query params
     const defaultValues = useMemo(() => ({
@@ -60,8 +61,11 @@ export const useUsers = () => {
     const debouncedSearch = useMemo(
         () =>
             debounce((searchTerm: string) => {
-                updateSearchParams({ search: searchTerm, page: '1' });
-            }, 500),
+                updateSearchParams({
+                    search: searchTerm || undefined,
+                    page: '1'
+                });
+            }, 300), // Reduced debounce time for better responsiveness
         [updateSearchParams]
     );
 
@@ -71,9 +75,9 @@ export const useUsers = () => {
         };
     }, [debouncedSearch]);
 
-    const handleSearch = (searchTerm: string) => {
+    const handleSearch = useCallback((searchTerm: string) => {
         debouncedSearch(searchTerm);
-    };
+    }, [debouncedSearch]);
 
     const handleSort = (sortField: string) => {
         if (sort === sortField) {
@@ -122,6 +126,17 @@ export const useUsers = () => {
         refetchOnWindowFocus: false,
     });
 
+    const createUser = async (formData: FormData) => {
+        setIsCreating(true);
+        try {
+            const response = await userService.createUser(formData);
+            await refetch();
+            return response;
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
     return {
         users: data?.data?.users || [],
         pagination: data?.data?.pagination,
@@ -143,5 +158,7 @@ export const useUsers = () => {
         isActive,
         sort,
         order,
+        isCreating,
+        createUser,
     };
 };

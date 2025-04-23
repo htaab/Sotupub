@@ -16,8 +16,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Trash2, UserPlus } from "lucide-react";
-import UserFormModal from "@/components/Forms/UserFormModal";
+import { Edit, UserPlus } from "lucide-react";
+import UserFormModal from "@/components/Forms/user/UserFormModal";
 import { useUsers } from "@/hooks/useUsers";
 import {
   Select,
@@ -26,29 +26,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react";
+import { getImageUrl } from "@/lib/utils";
+import DeleteUserModal from "@/components/Forms/user/DeleteUserModal";
+import ToggleUserStatusModal from "@/components/Forms/user/ToggleUserStatusModal";
 
 const Users = () => {
   const {
     users,
     pagination,
     isLoading,
-    isFetching,  // Add this
+    isFetching,
     error,
-    refetch,     // Add this
-    resetFilters, // Add this
+    refetch,
+    resetFilters,
     handlePageChange,
-    handleLimitChange, // Add this
+    handleLimitChange,
     handleSearch,
     handleSort,
     handleRoleChange,
     handleActiveStatusChange,
     sort,
     order,
-    search,      // Add this
-    limit,       // Add this
-    role,        // Add this
-    isActive     // Add this
+    search,
+    limit,
+    role,
+    isActive
   } = useUsers();
+
+  const [searchInput, setSearchInput] = useState(search);
 
   return (
     <div className="space-y-4">
@@ -64,14 +71,14 @@ const Users = () => {
               {/* Add value to maintain input state */}
               <input
                 type="text"
-                value={search}
+                value={searchInput}
                 placeholder="Search users..."
                 className="px-3 py-2 border rounded-md"
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => { setSearchInput(e.target.value); handleSearch(e.target.value) }}
               />
               {/* Add value to maintain select state */}
-              <Select 
-                value={role || 'all'} 
+              <Select
+                value={role || 'all'}
                 onValueChange={(value) => handleRoleChange(value === 'all' ? undefined : value)}
               >
                 <SelectTrigger className="w-[180px]">
@@ -87,7 +94,7 @@ const Users = () => {
                 </SelectContent>
               </Select>
               {/* Add value to maintain select state */}
-              <Select 
+              <Select
                 value={isActive === undefined ? 'all' : String(isActive)}
                 onValueChange={(value) => handleActiveStatusChange(value === 'all' ? undefined : value === 'true')}
               >
@@ -158,6 +165,7 @@ const Users = () => {
                     Email {sort === 'email' && (order === 'asc' ? '↑' : '↓')}
                   </TableHead>
                   <TableHead>Phone number</TableHead>
+                  <TableHead>Matricule</TableHead>
                   <TableHead
                     className="cursor-pointer hover:bg-gray-50"
                     onClick={() => handleSort('role')}
@@ -190,25 +198,40 @@ const Users = () => {
                   (
                     users.map((user) => (
                       <TableRow className="text-lg" key={user._id}>
-                        <TableCell>{user.name}</TableCell>
+                        <TableCell className="flex items-center gap-3">
+                          <Avatar className="rounded-lg size-10">
+                            <AvatarImage src={user.image ? getImageUrl(user.image) : `https://ui-avatars.com/api/?name=${user.name}`} />
+                            <AvatarFallback className="text-xs text-wrap text-center">{user.name}</AvatarFallback>
+                          </Avatar>
+
+                          {user.name}
+                        </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.phoneNumber || 'N/A'}</TableCell>
+                        <TableCell>{user.matriculeNumber}</TableCell>
                         <TableCell>{user.role}</TableCell>
-                        <TableCell>{user.isActive ? 'Active' : 'Inactive'}</TableCell>
                         <TableCell>
-                          <div className="flex justify-end gap-4">
-                            <UserFormModal
-                              triggerMessage={
-                                <Button variant={"outline"} size={"icon"}>
-                                  <Edit className="text-green-700" />
-                                </Button>
-                              }
-                              user={user}
-                            />
-                            <Button variant="destructive">
-                              <Trash2 />
-                            </Button>
+                          <div className="flex items-center gap-3">
+                            <span className={`rounded-full h-2 w-2 ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            {user.role !== "admin" &&
+                              <ToggleUserStatusModal user={user} />
+                            }
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {user?.role !== "admin" &&
+                            <div className="flex justify-end gap-4">
+                              <UserFormModal
+                                triggerMessage={
+                                  <Button variant={"outline"} size={"icon"}>
+                                    <Edit className="text-green-700" />
+                                  </Button>
+                                }
+                                user={user}
+                              />
+                              <DeleteUserModal user={user} />
+                            </div>
+                          }
                         </TableCell>
                       </TableRow>
                     ))
