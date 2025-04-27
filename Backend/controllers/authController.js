@@ -72,7 +72,7 @@ const refreshToken = async (req, res) => {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
     // Get user from database
-    const user = await User.findById(decoded.id).select("role isActive").lean();
+    const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({
@@ -95,11 +95,7 @@ const refreshToken = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Token refreshed successfully",
-      user: {
-        _id: user._id,
-        role: user.role,
-        isActive: user.isActive,
-      },
+      user: sanitizeUser(user),
       ...tokens,
     });
   } catch (error) {

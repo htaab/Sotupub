@@ -1,6 +1,7 @@
 import axios, { InternalAxiosRequestConfig, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { useAuthStore } from '@/store/auth-store';
 import { ApiResponse } from '@/types/auth';
+import { toast } from 'sonner';
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
     _skipAuthRefresh?: boolean;
@@ -72,12 +73,12 @@ api.interceptors.response.use(
                         }
                     } as CustomAxiosRequestConfig
                 );
-
-                if (!response.data.success || !response.data.accessToken || !response.data.refreshToken || !response.data.user) {
+                if (!response.data.success || !response.data.accessToken || !response.data.refreshToken) {
                     throw new Error('Invalid refresh token response');
                 }
 
                 const { accessToken, refreshToken: newRefreshToken, user } = response.data;
+
                 useAuthStore.getState().setAuth(user, accessToken, newRefreshToken);
 
                 originalRequest.headers = {
@@ -88,9 +89,20 @@ api.interceptors.response.use(
                 return api(originalRequest);
 
             } catch (refreshError) {
+                let errorMessage = 'Session expired. Please login again.';
+                if (refreshError instanceof AxiosError) {
+                    errorMessage = (refreshError.response?.data as ErrorResponse)?.message || refreshError.message;
+                } else if (refreshError instanceof Error) {
+                    errorMessage = refreshError.message;
+                }
+                toast.error(errorMessage);
                 useAuthStore.getState().logout();
-                window.location.href = '/login';
-                return Promise.reject(refreshError instanceof Error ? refreshError : new Error('Session expired. Please login again.'));
+                // Use toast's duration for redirect timing
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2500);
+
+                return Promise.reject(refreshError);
             }
         }
 

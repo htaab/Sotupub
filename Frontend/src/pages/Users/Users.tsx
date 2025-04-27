@@ -29,8 +29,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react";
 import { getImageUrl } from "@/lib/utils";
-import DeleteUserModal from "@/components/Forms/user/DeleteUserModal";
 import ToggleUserStatusModal from "@/components/Forms/user/ToggleUserStatusModal";
+import DeleteEntityModal from "@/components/Forms/common/DeleteEntityModal";
+import { userService } from "@/services/userService";
 
 const Users = () => {
   const {
@@ -229,7 +230,13 @@ const Users = () => {
                                 }
                                 user={user}
                               />
-                              <DeleteUserModal user={user} />
+                              <DeleteEntityModal
+                                entity={user}
+                                entityName={user.name}
+                                entityType="User"
+                                deleteFunction={userService.deleteUser}
+                                queryKey={["users"]}
+                              />
                             </div>
                           }
                         </TableCell>

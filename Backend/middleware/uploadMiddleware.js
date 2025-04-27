@@ -6,8 +6,9 @@ import fs from "fs";
 const uploadsDir = path.join(process.cwd(), "uploads");
 const userUploadsDir = path.join(uploadsDir, "users");
 const documentsDir = path.join(uploadsDir, "documents");
+const productsDir = path.join(uploadsDir, "products");
 
-[uploadsDir, userUploadsDir, documentsDir].forEach((dir) => {
+[uploadsDir, userUploadsDir, documentsDir, productsDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -16,7 +17,9 @@ const documentsDir = path.join(uploadsDir, "documents");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Choose destination based on file type
-    if (file.fieldname === "image") {
+    if (req.originalUrl.includes("/products")) {
+      cb(null, productsDir);
+    } else if (req.originalUrl.includes("/users")) {
       cb(null, userUploadsDir);
     } else {
       cb(null, documentsDir);
@@ -30,7 +33,13 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Math.round(Math.random() * 1e9);
     const extension = path.extname(file.originalname).toLowerCase();
 
-    const prefix = file.fieldname === "image" ? "profile" : "doc";
+    // Determine prefix based on route
+    let prefix = "doc";
+    if (req.originalUrl.includes("/products")) {
+      prefix = "product";
+    } else if (req.originalUrl.includes("/users")) {
+      prefix = "profile";
+    }
     cb(
       null,
       `${prefix}-${originalName}-${timestamp}-${uniqueSuffix}${extension}`

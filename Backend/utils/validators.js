@@ -10,6 +10,10 @@ export const validatePassword = (password) => {
 };
 
 export const sanitizeUser = (user) => {
+  if (!user.toObject) {
+    const { password, ...sanitizedUser } = user;
+    return sanitizedUser;
+  }
   const { password, ...sanitizedUser } = user.toObject();
   return sanitizedUser;
 };

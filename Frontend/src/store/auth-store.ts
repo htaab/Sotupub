@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@/types/auth';
+import { toast } from 'sonner';
 
 interface AuthState {
   user: User | null;
@@ -21,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({ user: null, accessToken: null, refreshToken: null });
         localStorage.removeItem('auth-storage');
-        window.location.href = '/login';
+        toast.info('Logged out successfully', { duration: 2000 });
       },
     }),
     {

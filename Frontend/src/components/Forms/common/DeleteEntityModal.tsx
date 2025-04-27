@@ -10,16 +10,27 @@ import {
     DialogTrigger,
     DialogDescription,
 } from "../../ui/dialog";
-import { User } from "@/types/auth";
-import { userService } from "@/services/userService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
+import { ReactNode } from "react";
 
-interface DeleteUserModalProps {
-    user: User;
+interface DeleteEntityModalProps<T> {
+    entity: T;
+    entityName: string;
+    entityType: string;
+    deleteFunction: (id: string) => Promise<{ success: boolean; message?: string }>;
+    queryKey: string[];
+    triggerButton?: ReactNode;
 }
 
-const DeleteUserModal = ({ user }: DeleteUserModalProps) => {
+const DeleteEntityModal = <T extends { _id: string; name: string }>({
+    entity,
+    entityName,
+    entityType,
+    deleteFunction,
+    queryKey,
+    triggerButton,
+}: DeleteEntityModalProps<T>) => {
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const queryClient = useQueryClient();
@@ -27,15 +38,15 @@ const DeleteUserModal = ({ user }: DeleteUserModalProps) => {
     const handleDelete = async () => {
         try {
             setIsDeleting(true);
-            await userService.deleteUser(user._id);
-            toast.success("User deleted successfully");
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            await deleteFunction(entity._id);
+            toast.success(`${entityType} deleted successfully`);
+            queryClient.invalidateQueries({ queryKey });
             setOpen(false);
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
-                toast.error("An unexpected error occurred while deleting the user");
+                toast.error(`An unexpected error occurred while deleting the ${entityType.toLowerCase()}`);
             }
         } finally {
             setIsDeleting(false);
@@ -45,15 +56,17 @@ const DeleteUserModal = ({ user }: DeleteUserModalProps) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="destructive">
-                    <Trash2 />
-                </Button>
+                {triggerButton || (
+                    <Button variant="destructive">
+                        <Trash2 />
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Delete User</DialogTitle>
+                    <DialogTitle>Delete {entityType}</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete {user.name}? This action cannot be undone.
+                        Are you sure you want to delete {entityName}? This action cannot be undone.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="flex gap-2">
@@ -69,7 +82,7 @@ const DeleteUserModal = ({ user }: DeleteUserModalProps) => {
                         onClick={handleDelete}
                         disabled={isDeleting}
                     >
-                        {isDeleting ? "Deleting..." : "Delete User"}
+                        {isDeleting ? "Deleting..." : `Delete ${entityType}`}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -77,4 +90,4 @@ const DeleteUserModal = ({ user }: DeleteUserModalProps) => {
     );
 };
 
-export default DeleteUserModal;
+export default DeleteEntityModal;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -107,6 +107,30 @@ const UserFormModal = ({ triggerMessage, user }: UserFormModalProps) => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      if (user) {
+        reset({
+          name: user.name,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          matriculeNumber: String(user.matriculeNumber),
+          role: user.role,
+          isActive: user.isActive,
+        });
+      } else {
+        reset({
+          name: "",
+          email: "",
+          phoneNumber: "",
+          matriculeNumber: "",
+          role: undefined,
+          isActive: true,
+        });
+      }
+    }
+  }, [open, user, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

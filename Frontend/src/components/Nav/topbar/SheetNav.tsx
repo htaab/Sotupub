@@ -27,6 +27,12 @@ const navItems = [
     link: "/",
   },
   {
+    title: "Users",
+    icon: <UsersRound />,
+    link: "/users",
+    role: ['admin', 'client', 'project manager', 'technician'],
+  },
+  {
     title: "Project manager",
     icon: <UsersRound />,
     link: "/project-managers",
@@ -101,11 +107,10 @@ const SheetNav = () => {
             to={item.link}
             key={index}
             className={`mb-2 p-3 flex items-center last:mb-0 cursor-pointer rounded-md transition-all 
-                    ${
-                      item.link === activeLink
-                        ? "bg-primary/15 hover:bg-primary/50"
-                        : "hover:bg-secondary"
-                    }
+                    ${item.link === activeLink
+                ? "bg-primary/15 hover:bg-primary/50"
+                : "hover:bg-secondary"
+              }
                     `}
             onClick={TriggerSheet}
           >

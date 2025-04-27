@@ -8,12 +8,12 @@ import {
   CalendarRange,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import { Link, useLocation } from "react-router-dom";
+import { useAuthStore } from "@/store/auth-store";
 
 // List of navigation items with title, icon, active state, and link
 
@@ -31,63 +31,63 @@ const Sidebar = ({
   const location = useLocation();
   // the activeLink state is used to highlight the current active item of the sidebar.
   const [activeLink, setActiveLink] = useState("");
-
-  const role = "admin";
+  const { user } = useAuthStore();
+  const role = user?.role || "client";
 
   const navItems = [
     {
       title: "Dashboard",
       icon: <LayoutDashboard />,
       link: "/",
-      role: ["admin", "technicien", "stockist", "client"],
+      role: ['admin', 'client', 'project manager', 'stock manager', 'technician'],
     },
     {
       title: "Users",
       icon: <UsersRound />,
       link: "/users",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Project manager",
       icon: <UsersRound />,
       link: "/project-managers",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Technicians",
       icon: <UsersRound />,
       link: "/technicians",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Stock managers",
       icon: <UsersRound />,
       link: "/stock-managers",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Clients",
       icon: <UsersRound />,
       link: "/clients",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Projects",
       icon: <FolderKanban />,
       link: "/projects",
-      role: ["admin", "technicien", "stockist", "client"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
     {
       title: "Products",
       icon: <PackageSearch />,
       link: "/products",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'stock manager', 'technician'],
     },
     {
       title: "Calendar",
       icon: <CalendarRange />,
       link: "/calendar",
-      role: ["admin"],
+      role: ['admin', 'client', 'project manager', 'technician'],
     },
   ];
   // the expanded state of our sidebar. this is a hook that keeps track of whether our sidebar is currently expanded or not.
@@ -155,17 +155,18 @@ const Sidebar = ({
             <div className="flex items-center justify-center">
               <Avatar className="h-14 w-14 border">
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
+                  src={user?.image ? getImageUrl(user.image) : `https://ui-avatars.com/api/?name=${user?.name}`}
                   alt="@shadcn"
                 />
-                <AvatarFallback className="text-center">User</AvatarFallback>
+                <AvatarFallback className="text-center">{user?.name}</AvatarFallback>
               </Avatar>
               <div
                 className={`flex flex-col overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0 opacity-0"
                   }`}
               >
-                <h4 className="font-semibold">User</h4>
-                <span className="text-xs">user.email@gmail.com</span>
+                <h4 className="font-semibold">{user?.name}</h4>
+                <span className="text-xs">{user?.email}</span>
+                <span className="text-xs">{user?.role}</span>
               </div>
             </div>
           </CardContent>
