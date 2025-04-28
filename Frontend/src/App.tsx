@@ -23,6 +23,7 @@ const ProjectTasks = lazy(() => import("./pages/Project/ProjectTasks"));
 const ProjectForm = lazy(() => import("./pages/Project/ProjectForm"));
 const ClientForm = lazy(() => import("./pages/Client/ClientForm"));
 const Users = lazy(() => import("./pages/Users/Users"));
+const Profile = lazy(() => import("./pages/Profile/Profile"));
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -157,6 +158,14 @@ const routes = [
         element: (
           <ProtectedRoute>
             <Calendar />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "/profile/:userId?",
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         )
       },

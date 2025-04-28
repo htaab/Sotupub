@@ -16,7 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, UserPlus } from "lucide-react";
+import { Edit, User, UserPlus } from "lucide-react";
 import UserFormModal from "@/components/Forms/user/UserFormModal";
 import { useUsers } from "@/hooks/useUsers";
 import {
@@ -32,6 +32,7 @@ import { getImageUrl } from "@/lib/utils";
 import ToggleUserStatusModal from "@/components/Forms/user/ToggleUserStatusModal";
 import DeleteEntityModal from "@/components/Forms/common/DeleteEntityModal";
 import { userService } from "@/services/userService";
+import { Link } from "react-router-dom";
 
 const Users = () => {
   const {
@@ -237,6 +238,15 @@ const Users = () => {
                                 deleteFunction={userService.deleteUser}
                                 queryKey={["users"]}
                               />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                asChild
+                              >
+                                <Link to={`/profile/${user._id}`} title="View Profile">
+                                  <User className="text-blue-700" />
+                                </Link>
+                              </Button>
                             </div>
                           }
                         </TableCell>
@@ -291,7 +301,7 @@ const Users = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 };
 

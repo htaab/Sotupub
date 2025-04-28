@@ -413,4 +413,213 @@ const toggleUserActive = async (req, res) => {
   }
 };
 
-export { getUsers, createUser, updateUser, deleteUser, toggleUserActive };
+const getProfile = async (req, res) => {
+  try {
+    const requestedUserId = req.params.userId || req.user.id;
+
+    const user = await User.findById(requestedUserId).select([
+      "name",
+      "email",
+      "role",
+      "matriculeNumber",
+      "image",
+      "phoneNumber",
+      "address",
+      "isActive",
+      "createdAt",
+      "updatedAt",
+    ]);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user,
+      message: "Profile fetched successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching profile",
+    });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user.id;
+    const { name, email, phoneNumber } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Validate email format if being updated
+    if (email && !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    // Check email uniqueness if email is being updated
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already in use",
+        });
+      }
+    }
+
+    // Handle image update
+    if (req.file) {
+      if (user.image) {
+        const oldImagePath = path.join(process.cwd(), user.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      user.image = `/uploads/users/${req.file.filename}`;
+    }
+
+    // Update user fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+
+    await user.save();
+
+    const sanitizedUser = sanitizeUser(user);
+
+    return res.status(200).json({
+      success: true,
+      data: sanitizedUser,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Error updating profile",
+    });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  try {
+    const userId = req.params.userId || req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    // Validate password inputs
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide both current and new password",
+      });
+    }
+
+    // Get user with password field
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Hash and update password
+    user.password = await hashPassword(newPassword);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error updating password",
+    });
+  }
+};
+
+const resetUserPassword = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { newPassword } = req.body;
+
+    // Check if the requesting user is an admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Only administrators can reset passwords",
+      });
+    }
+
+    // Validate new password
+    if (!newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password is required",
+      });
+    }
+
+    // Get user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Hash and update password
+    user.password = await hashPassword(newPassword);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "User password reset successfully",
+    });
+  } catch (error) {
+    console.error("Error resetting user password:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error resetting user password",
+    });
+  }
+};
+
+export {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  toggleUserActive,
+  getProfile,
+  updateProfile,
+  updatePassword,
+  resetUserPassword, // Add the new function to exports
+};

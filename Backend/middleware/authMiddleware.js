@@ -198,4 +198,16 @@ const authorize = (...roles) => {
   };
 };
 
-export { protect, authorize, verifyRefreshToken };
+const authorizeUserOrAdmin = (req, res, next) => {
+  // Check if user is admin or accessing their own profile
+  if (req.user.role === "admin" || req.user.id === req.params.userId) {
+    next();
+  } else {
+    res.status(403).json({
+      success: false,
+      message: "Access denied. You can only access your own profile",
+    });
+  }
+};
+
+export { protect, authorize, verifyRefreshToken, authorizeUserOrAdmin };

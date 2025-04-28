@@ -99,7 +99,7 @@ api.interceptors.response.use(
                 useAuthStore.getState().logout();
                 // Use toast's duration for redirect timing
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = `/login?error=${encodeURIComponent(errorMessage)}`;
                 }, 2500);
 
                 return Promise.reject(refreshError);

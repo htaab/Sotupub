@@ -33,6 +33,18 @@ export default function Login() {
       const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     }
+    if (location.state?.showToast) {
+      toast.error(location.state.message);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    const params = new URLSearchParams(window.location.search);
+    const errorMessage = params.get('error');
+
+    if (errorMessage) {
+      toast.error(errorMessage);
+      // Clean up the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, [user, navigate, location]);
 
   const {
