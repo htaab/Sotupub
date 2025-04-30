@@ -289,18 +289,18 @@ const router = express.Router();
 router.use(protect);
 // Get all products
 router.get("/", authorize("admin", "stock manager"), getProducts);
-// Create product (Stock manager only)
+// Create product (Stock manager & admin only)
 router.post(
   "/",
-  authorize("stock manager"),
+  authorize("stock manager", "admin"),
   upload.single("image"),
   handleUploadError,
   createProduct
 );
-// Update product (Stock manager only)
+// Update product (Stock manager & admin only)
 router.put(
   "/:productId",
-  authorize("stock manager"),
+  authorize("stock manager", "admin"),
   upload.single("image"),
   handleUploadError,
   updateProduct

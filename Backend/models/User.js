@@ -38,6 +38,36 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     resetPasswordToken: String,
     resetPasswordExpiry: Date,
+    projects: {
+      // Projects where user is the client
+      asClient: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Project",
+        },
+      ],
+      // Projects where user is the project manager
+      asProjectManager: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Project",
+        },
+      ],
+      // Projects where user is the stock manager
+      asStockManager: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Project",
+        },
+      ],
+      // Projects where user is assigned as a technician
+      asTechnician: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Project",
+        },
+      ],
+    },
   },
   { timestamps: true }
 );
@@ -54,5 +84,17 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
     return false;
   }
 };
+
+userSchema.virtual("allProjects").get(function () {
+  const allProjects = [
+    ...(this.projects.asClient || []),
+    ...(this.projects.asProjectManager || []),
+    ...(this.projects.asStockManager || []),
+    ...(this.projects.asTechnician || []),
+  ];
+
+  // Remove duplicates (in case a user has multiple roles in the same project)
+  return [...new Set(allProjects)];
+});
 
 export default mongoose.model("User", userSchema);

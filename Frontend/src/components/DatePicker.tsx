@@ -11,31 +11,50 @@ import {
 } from "@/components/ui/popover";
 
 interface DatePickerProps {
-  date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
+  date?: Date | undefined;
+  setDate?: (date: Date | undefined) => void;
+  onSelect?: (date: Date | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  fromDate?: Date;
 }
 
-export function DatePicker({ date, setDate }: DatePickerProps) {
+export function DatePicker({
+  date,
+  onSelect,
+  placeholder = "Pick a date",
+  setDate,
+  className,
+  fromDate
+}: DatePickerProps) {
+  const handleSelect = (selectedDate: Date | undefined) => {
+    if (onSelect) onSelect(selectedDate);
+    if (setDate) setDate(selectedDate);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            "w-full justify-start text-left font-normal",
+            !date && "text-muted-foreground",
+            className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
+          {date ? format(date, "PPP") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={handleSelect}
           initialFocus
+          fromDate={fromDate} // Pass the fromDate to the Calendar
+          disabled={fromDate ? { before: fromDate } : undefined} // Disable dates before fromDate
         />
       </PopoverContent>
     </Popover>

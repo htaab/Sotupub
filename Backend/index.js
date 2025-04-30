@@ -11,6 +11,7 @@ import path from "path";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 // import projectRoutes from "./routes/projectRoutes.js";
 // import taskRoutes from "./routes/taskRoutes.js";
 // import productRoutes from "./routes/productRoutes.js";
@@ -51,7 +52,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
-// app.use("/api/projects", projectRoutes);
+app.use("/api/projects", projectRoutes);
 // app.use("/api/tasks", taskRoutes);
 
 // Error handling

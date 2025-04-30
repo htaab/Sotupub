@@ -19,8 +19,9 @@ interface DeleteEntityModalProps<T> {
     entityName: string;
     entityType: string;
     deleteFunction: (id: string) => Promise<{ success: boolean; message?: string }>;
-    queryKey: string[];
+    queryKey: readonly unknown[];
     triggerButton?: ReactNode;
+    additionalQueryKeys?: readonly unknown[][];
 }
 
 const DeleteEntityModal = <T extends { _id: string; name: string }>({
@@ -30,6 +31,7 @@ const DeleteEntityModal = <T extends { _id: string; name: string }>({
     deleteFunction,
     queryKey,
     triggerButton,
+    additionalQueryKeys
 }: DeleteEntityModalProps<T>) => {
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -38,10 +40,24 @@ const DeleteEntityModal = <T extends { _id: string; name: string }>({
     const handleDelete = async () => {
         try {
             setIsDeleting(true);
-            await deleteFunction(entity._id);
-            toast.success(`${entityType} deleted successfully`);
+            const response = await deleteFunction(entity._id);
             queryClient.invalidateQueries({ queryKey });
-            setOpen(false);
+            if (response.success) {
+                // Invalidate the main query
+                queryClient.invalidateQueries({ queryKey });
+
+                // Invalidate additional queries if provided
+                if (additionalQueryKeys && additionalQueryKeys.length > 0) {
+                    additionalQueryKeys.forEach(key => {
+                        queryClient.invalidateQueries({ queryKey: key });
+                    });
+                }
+
+                toast.success(`${entityType} deleted successfully`);
+                setOpen(false);
+            } else {
+                toast.error(response.message || `Failed to delete ${entityType.toLowerCase()}`);
+            }
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message);
