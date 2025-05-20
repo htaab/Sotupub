@@ -45,7 +45,7 @@ const Sidebar = ({
       title: "Users",
       icon: <UsersRound />,
       link: "/users",
-      role: ['admin', 'client', 'project manager', 'technician'],
+      role: ['admin'],
     },
     // {
     //   title: "Project manager",
@@ -75,13 +75,13 @@ const Sidebar = ({
       title: "Projects",
       icon: <FolderKanban />,
       link: "/projects",
-      role: ['admin', 'client', 'project manager', 'technician'],
+      role: ['admin', 'client', 'project manager', 'technician', "stock manager"],
     },
     {
       title: "Products",
       icon: <PackageSearch />,
       link: "/products",
-      role: ['admin', 'client', 'project manager', 'stock manager', 'technician'],
+      role: ['admin', 'stock manager'],
     },
     {
       title: "Calendar",

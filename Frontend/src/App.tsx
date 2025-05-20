@@ -8,6 +8,7 @@ import Topbar from "./components/Nav/topbar/Topbar";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ProtectedRoute } from "./components/Auth/protected-route";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 // Lazy load pages
 const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
@@ -20,10 +21,10 @@ const Projects = lazy(() => import("./pages/Project/Projects"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Products = lazy(() => import("./pages/product/Products"));
 const ProjectTasks = lazy(() => import("./pages/Project/ProjectTasks"));
-const ProjectForm = lazy(() => import("./pages/Project/ProjectForm"));
 const ClientForm = lazy(() => import("./pages/Client/ClientForm"));
 const Users = lazy(() => import("./pages/Users/Users"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
+const NotificationsPage = lazy(() => import("./pages/Notifications/NotificationsPage"));
 
 // Loading fallback
 const LoadingFallback = () => (
@@ -64,7 +65,9 @@ const routes = [
     element: (
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <ProtectedRoute>
-          <Layout />
+          <NotificationProvider>
+            <Layout />
+          </NotificationProvider>
         </ProtectedRoute>
       </ThemeProvider>
     ),
@@ -124,21 +127,13 @@ const routes = [
       {
         path: "/projects",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project manager']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager', "client", "technician", "stock manager"]}>
             <Projects />
           </ProtectedRoute>
         )
       },
       {
-        path: "/projects/new-project",
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <ProjectForm />
-          </ProtectedRoute>
-        )
-      },
-      {
-        path: "/projects/:id/Tasks",
+        path: "/projects/:projectId/Tasks",
         element: (
           <ProtectedRoute allowedRoles={['admin', 'project manager', 'technician']}>
             <ProjectTasks />
@@ -169,6 +164,14 @@ const routes = [
           </ProtectedRoute>
         )
       },
+      {
+        path: "/notifications",
+        element: (
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        )
+      },
     ],
   },
   {
@@ -186,7 +189,14 @@ const routes = [
 
 function App() {
   const router = createBrowserRouter(routes);
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  });
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />

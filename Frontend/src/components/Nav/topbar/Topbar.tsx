@@ -2,6 +2,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 import SheetNav from "./SheetNav";
 import { AvatarMenu } from "./AvatarMenu";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const Topbar = () => {
   return (
@@ -11,6 +12,7 @@ const Topbar = () => {
       </div>
       <div className="ml-auto flex items-center">
         <ModeToggle className="mr-5" />
+        <NotificationBell className="mr-5" />
         <AvatarMenu />
       </div>
     </nav>

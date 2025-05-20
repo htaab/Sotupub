@@ -1,6 +1,7 @@
 import Project from "../models/Project.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
+import notificationService from "../services/notificationService.js";
 
 /**
  * Get all projects with filtering, pagination and sorting
@@ -309,6 +310,42 @@ const createProject = async (req, res) => {
           $inc: { quantity: -item.quantity },
         });
       }
+    }
+
+    // Send notifications to all users involved in the project
+    // Notify client
+    await notificationService.notifyUser({
+      to: client,
+      type: "project_assigned",
+      data: {
+        projectId: project._id,
+        projectName: name,
+        entreprise,
+      },
+    });
+
+    // Notify project manager
+    await notificationService.notifyUser({
+      to: projectManager,
+      type: "project_assigned",
+      data: {
+        projectId: project._id,
+        projectName: name,
+        entreprise,
+      },
+    });
+
+    // Notify stock manager if assigned
+    if (stockManager) {
+      await notificationService.notifyUser({
+        to: stockManager,
+        type: "project_assigned",
+        data: {
+          projectId: project._id,
+          projectName: name,
+          entreprise,
+        },
+      });
     }
 
     // Populate the project with related data for the response
