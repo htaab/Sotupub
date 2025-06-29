@@ -13,7 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { List, FolderPlus, RefreshCcw, Edit } from "lucide-react";
+import { List, FolderPlus, RefreshCcw, Edit, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import useProjects from "@/hooks/useProjects";
 import { useAuthStore } from "@/store/auth-store";
@@ -27,6 +27,7 @@ import ProjectFormModal from "@/components/Forms/project/ProjectFormModal";
 import DeleteEntityModal from "@/components/Forms/common/DeleteEntityModal";
 import { projectService } from "@/services/projectService";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import ProductsListModal from "@/components/projects/ProductsListModal";
 
 const Projects = () => {
   const { user } = useAuthStore();
@@ -52,10 +53,13 @@ const Projects = () => {
     stockManager,
     handleUserChange
   } = useProjects();
-  const { users } = useUsers();
-  const clients = users.filter(user => user.role === "client");
-  const projectManagers = users.filter(user => user.role === "project manager");
-  const stockManagers = users.filter(user => user.role === "stock manager");
+  const isAdmin = user?.role === "admin";
+
+  // Only fetch users data if the current user is an admin
+  const { users = [] } = useUsers({ enabled: isAdmin });
+  const clients = isAdmin ? users.filter(user => user.role === "client") : [];
+  const projectManagers = isAdmin ? users.filter(user => user.role === "project manager") : [];
+  const stockManagers = isAdmin ? users.filter(user => user.role === "stock manager") : [];
 
   const [searchInput, setSearchInput] = useState(search);
 
@@ -72,7 +76,7 @@ const Projects = () => {
               className="px-3 py-2 border rounded-md"
               onChange={(e) => { setSearchInput(e.target.value); handleSearch(e.target.value) }}
             />
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button variant="outline" onClick={() => refetch()}>
                 Refresh
               </Button>
@@ -117,53 +121,55 @@ const Projects = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex flex-col gap-3 md:flex-row">
-                    {/* Client filter */}
-                    <Select
-                      value={client || 'all'}
-                      onValueChange={(value) => handleUserChange('client', value === 'all' ? undefined : value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Client" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Clients</SelectItem>
-                        {clients.map(client => (
-                          <SelectItem key={client._id} value={client._id}>Client : {client.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Project Manager filter */}
-                    <Select
-                      value={projectManager || 'all'}
-                      onValueChange={(value) => handleUserChange('projectManager', value === 'all' ? undefined : value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Project Manager" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Project Managers</SelectItem>
-                        {projectManagers.map(manager => (
-                          <SelectItem key={manager._id} value={manager._id}>Project Manager {manager.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Stock Manager filter */}
-                    <Select
-                      value={stockManager || 'all'}
-                      onValueChange={(value) => handleUserChange('stockManager', value === 'all' ? undefined : value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Stock Manager" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Stock Managers</SelectItem>
-                        {stockManagers.map(manager => (
-                          <SelectItem key={manager._id} value={manager._id}>Stock Manager {manager.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {user?.role === "admin" &&
+                    <div className="flex flex-col gap-3 md:flex-row">
+                      {/* Client filter */}
+                      <Select
+                        value={client || 'all'}
+                        onValueChange={(value) => handleUserChange('client', value === 'all' ? undefined : value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Clients</SelectItem>
+                          {clients.map(client => (
+                            <SelectItem key={client._id} value={client._id}>Client : {client.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Project Manager filter */}
+                      <Select
+                        value={projectManager || 'all'}
+                        onValueChange={(value) => handleUserChange('projectManager', value === 'all' ? undefined : value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Project Manager" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Project Managers</SelectItem>
+                          {projectManagers.map(manager => (
+                            <SelectItem key={manager._id} value={manager._id}>Project Manager {manager.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {/* Stock Manager filter */}
+                      <Select
+                        value={stockManager || 'all'}
+                        onValueChange={(value) => handleUserChange('stockManager', value === 'all' ? undefined : value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Stock Manager" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Stock Managers</SelectItem>
+                          {stockManagers.map(manager => (
+                            <SelectItem key={manager._id} value={manager._id}>Stock Manager {manager.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  }
                   <div className="flex flex-col gap-3 md:flex-row">
                     <div className="w-full">
                       <DatePicker
@@ -293,61 +299,73 @@ const Projects = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-3 text-xs">
-                    <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                    <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md flex gap-1">
                       <span className="font-medium">Client:</span> {
                         typeof project.client === 'object' && project.client !== null
                           ? project.client.name
                           : typeof project.client === 'string'
                             ? project.client
-                            : "N/A"
+                            : <span className="text-amber-500 flex items-center">N/A <AlertTriangle className="h-3 w-3 ml-1" /></span>
                       }
                     </div>
-                    <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                    <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md flex gap-1">
                       <span className="font-medium">Manager:</span> {
                         typeof project.projectManager === 'object' && project.projectManager !== null
                           ? project.projectManager.name
                           : typeof project.projectManager === 'string'
                             ? project.projectManager
-                            : "N/A"
+                            : <span className="text-amber-500 flex items-center">N/A <AlertTriangle className="h-3 w-3 ml-1" /></span>
                       }
                     </div>
                     {(project.products?.length > 0) && (
-                      <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-                        <span className="font-medium">Products:</span> {project.products.length}
-                      </div>
+                      <>
+                        <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md flex gap-1">
+                          <span className="font-medium">Manager:</span> {
+                            typeof project.stockManager === 'object' && project.stockManager !== null
+                              ? project.stockManager.name
+                              : typeof project.stockManager === 'string'
+                                ? project.stockManager
+                                : <span className="text-amber-500 flex items-center">N/A <AlertTriangle className="h-3 w-3 ml-1" /></span>
+                          }
+                        </div>
+                        <div className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                          <span className="font-medium">Products:</span> {project.products.length}
+                        </div>
+                        <ProductsListModal project={project} />
+                      </>
                     )}
                   </div>
                 </div>
               </CardContent>
-
-              <CardFooter className="flex justify-end gap-2">
-                {user?.role === "admin" && (
-                  <ProjectFormModal
-                    project={project}
-                    message={
-                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                        <Edit className="h-4 w-4 text-green-600" />
-                      </Button>
-                    }
-                  />
-                )}
-                {user?.role === "admin" && (
-                  <DeleteEntityModal
-                    deleteFunction={projectService.deleteProject}
-                    entity={project}
-                    entityName={project.name}
-                    entityType="Project"
-                    queryKey={["projects"]}
-                    additionalQueryKeys={project.products && project.products.length > 0 ? [["products"]] : []}
-                  />
-                )}
-                <Link to={`/projects/${project._id}/tasks`}>
-                  <Button size="sm">
-                    <List className="h-4 w-4 mr-1" />
-                    Tasks
-                  </Button>
-                </Link>
-              </CardFooter>
+              {user?.role !== "stock manager" &&
+                <CardFooter className="flex justify-end gap-2">
+                  {user?.role === "admin" && (
+                    <ProjectFormModal
+                      project={project}
+                      message={
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                          <Edit className="h-4 w-4 text-green-600" />
+                        </Button>
+                      }
+                    />
+                  )}
+                  {user?.role === "admin" && (
+                    <DeleteEntityModal
+                      deleteFunction={projectService.deleteProject}
+                      entity={project}
+                      entityName={project.name}
+                      entityType="Project"
+                      queryKeys={[["projects"], ["products"], ["projects-calendar"]]}
+                    />
+                  )}
+                  <Link to={`/projects/${project._id}/tasks`}>
+                    <Button size="sm">
+                      <List className="h-4 w-4 mr-1" />
+                      Tasks
+                    </Button>
+                  </Link>
+                </CardFooter>
+              }
             </Card>
           ))
         ) : (

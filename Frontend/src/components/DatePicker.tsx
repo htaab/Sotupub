@@ -17,6 +17,7 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   fromDate?: Date;
+  toDate?: Date;
 }
 
 export function DatePicker({
@@ -25,7 +26,8 @@ export function DatePicker({
   placeholder = "Pick a date",
   setDate,
   className,
-  fromDate
+  fromDate,
+  toDate
 }: DatePickerProps) {
   const handleSelect = (selectedDate: Date | undefined) => {
     if (onSelect) onSelect(selectedDate);
@@ -53,8 +55,18 @@ export function DatePicker({
           selected={date}
           onSelect={handleSelect}
           initialFocus
-          fromDate={fromDate} // Pass the fromDate to the Calendar
-          disabled={fromDate ? { before: fromDate } : undefined} // Disable dates before fromDate
+          fromDate={fromDate}
+          toDate={toDate}
+          // disabled={fromDate ? { before: fromDate } : undefined} // Disable dates before fromDate
+          disabled={(date) => {
+            if (fromDate && date < new Date(fromDate.setHours(0, 0, 0, 0))) return true;
+            if (toDate && date > toDate) return true;
+            return false;
+          }}
+        // disabled={{
+        //   ...(fromDate && { before: fromDate }),
+        //   ...(toDate && { after: toDate })
+        // }}
         />
       </PopoverContent>
     </Popover>

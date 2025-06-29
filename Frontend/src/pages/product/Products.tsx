@@ -189,7 +189,7 @@ const Products = () => {
                               entityName={product.name}
                               entityType="Product"
                               deleteFunction={productService.deleteProduct}
-                              queryKey={["products"]}
+                              queryKeys={[["products"]]}
                             />
                           </div>
                         </TableCell>

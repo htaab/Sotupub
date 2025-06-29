@@ -1,4 +1,5 @@
 import { User } from './auth';
+import { Task } from './task';
 
 export interface Project {
     _id: string;
@@ -21,7 +22,7 @@ export interface Project {
         };
         quantity: number;
     }>;
-    tasks?: string[];
+    tasks?: Task[] | string[];
     createdAt: string;
     updatedAt: string;
 }

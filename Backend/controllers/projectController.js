@@ -2,6 +2,7 @@ import Project from "../models/Project.js";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import notificationService from "../services/notificationService.js";
+import Task from "../models/Task.js";
 
 /**
  * Get all projects with filtering, pagination and sorting
@@ -43,9 +44,23 @@ const getProjects = async (req, res) => {
 
     // Build query
     const query = {};
+    // If user is a technicien, restrict to projects they are assigned to
+    if (req.user.role === "technician") {
+      // Step 1: Find tasks assigned to this technicien
+      const tasks = await Task.find({ assignedTo: req.user._id }).select(
+        "project"
+      );
 
+      // Step 2: Extract project IDs
+      const projectIds = [
+        ...new Set(tasks.map((task) => task.project.toString())),
+      ];
+
+      // Step 3: Filter projects by those IDs
+      query._id = { $in: projectIds };
+    }
     // If not admin, restrict to projects the user is involved with
-    if (req.user.role !== "admin") {
+    else if (req.user.role !== "admin") {
       query.$or = [
         { client: req.user._id },
         { projectManager: req.user._id },
@@ -308,6 +323,13 @@ const createProject = async (req, res) => {
       for (const item of validatedProducts) {
         await Product.findByIdAndUpdate(item.product, {
           $inc: { quantity: -item.quantity },
+          // Add this project to the product's projects array
+          $push: {
+            projects: {
+              project: project._id,
+              allocatedQuantity: item.quantity,
+            },
+          },
         });
       }
     }
@@ -484,12 +506,13 @@ const updateProject = async (req, res) => {
     }
 
     // Handle product updates if provided
+    let validatedProducts;
     if (products) {
       // Store original products for inventory adjustment
       const originalProducts = [...project.products];
 
       // Validate new products
-      let validatedProducts = [];
+      validatedProducts = [];
       for (const item of products) {
         if (!item.product || !item.quantity || item.quantity < 1) {
           return res.status(400).json({
@@ -531,9 +554,30 @@ const updateProject = async (req, res) => {
 
         // Update product quantity in inventory
         if (quantityDifference !== 0) {
-          await Product.findByIdAndUpdate(item.product, {
-            $inc: { quantity: -quantityDifference },
-          });
+          if (existingProductItem) {
+            // Update existing product allocation
+            await Product.findByIdAndUpdate(
+              {
+                _id: item.product,
+                "projects.project": projectId,
+              },
+              {
+                $inc: { quantity: -quantityDifference },
+                $set: { "projects.$.allocatedQuantity": item.quantity },
+              }
+            );
+          } else {
+            // Add new product allocation
+            await Product.findByIdAndUpdate(item.product, {
+              $inc: { quantity: -quantityDifference },
+              $push: {
+                projects: {
+                  project: projectId,
+                  allocatedQuantity: item.quantity,
+                },
+              },
+            });
+          }
         }
       }
 
@@ -546,29 +590,32 @@ const updateProject = async (req, res) => {
         if (!stillExists) {
           await Product.findByIdAndUpdate(originalItem.product, {
             $inc: { quantity: originalItem.quantity },
+            // Remove this project from the product's projects array
+            $pull: { projects: { project: projectId } },
           });
         }
       }
-
-      // Set the new products array
-      project.products = validatedProducts;
     }
 
-    // Update project fields
-    if (name) project.name = name;
-    if (entreprise) project.entreprise = entreprise;
-    if (description !== undefined) project.description = description;
-    if (startDate) project.beginDate = startDate;
-    if (finishDate) project.endDate = finishDate;
-    if (status) project.status = status;
-    if (client) project.client = client;
-    if (projectManager) project.projectManager = projectManager;
-    if (stockManager) project.stockManager = stockManager;
+    // Create update object
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (entreprise) updateData.entreprise = entreprise;
+    if (description !== undefined) updateData.description = description;
+    if (beginDate) updateData.beginDate = new Date(beginDate);
+    if (endDate) updateData.endDate = new Date(endDate);
+    if (status) updateData.status = status;
+    if (client) updateData.client = client;
+    if (projectManager) updateData.projectManager = projectManager;
+    if (stockManager) updateData.stockManager = stockManager;
+    if (validatedProducts) updateData.products = validatedProducts;
 
-    await project.save();
-
-    // Populate the project with related data for the response
-    const populatedProject = await Project.findById(project._id)
+    // Use findOneAndUpdate to trigger the pre middleware
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: projectId },
+      updateData,
+      { new: true }
+    )
       .populate("client", "name email")
       .populate("projectManager", "name email")
       .populate("stockManager", "name email")
@@ -579,7 +626,7 @@ const updateProject = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: populatedProject,
+      data: updatedProject,
       message: "Project updated successfully",
     });
   } catch (error) {
@@ -622,10 +669,25 @@ const getProjectById = async (req, res) => {
         project.stockManager.equals(req.user._id);
 
       if (!isUserInvolved) {
-        return res.status(403).json({
-          success: false,
-          message: "You don't have permission to access this project",
-        });
+        if (req.user.role === "technician") {
+          const hasTask = await Task.exists({
+            project: project._id,
+            assignedTo: req.user._id,
+          });
+
+          if (!hasTask) {
+            return res.status(403).json({
+              success: false,
+              message: "You don't have permission to access this projecto",
+            });
+          }
+        } else {
+          // Other non-admin roles not directly involved
+          return res.status(403).json({
+            success: false,
+            message: "You don't have permission to access this project bliat",
+          });
+        }
       }
     }
 
@@ -672,12 +734,14 @@ const deleteProject = async (req, res) => {
       for (const item of project.products) {
         await Product.findByIdAndUpdate(item.product, {
           $inc: { quantity: item.quantity },
+          // Remove this project from the product's projects array
+          $pull: { projects: { project: projectId } },
         });
       }
     }
 
     // Delete the project
-    await Project.findByIdAndDelete(projectId);
+    await Project.findOneAndDelete({ _id: projectId });
 
     return res.status(200).json({
       success: true,

@@ -236,7 +236,7 @@ const Users = () => {
                                 entityName={user.name}
                                 entityType="User"
                                 deleteFunction={userService.deleteUser}
-                                queryKey={["users"]}
+                                queryKeys={[["users"]]}
                               />
                               <Button
                                 variant="outline"

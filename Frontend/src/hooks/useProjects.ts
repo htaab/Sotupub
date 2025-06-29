@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { debounce } from "lodash";
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from "react-router-dom";
-import { projectService } from "@/services/projectService";
+import { projectService, ProjectCreateData } from "@/services/projectService";
+import { useAuthStore } from "@/store/auth-store";
 
 const useProjects = () => {
+    const { user } = useAuthStore();
     const [searchParams, setSearchParams] = useSearchParams();
     const [isCreating, setIsCreating] = useState(false);
 
@@ -120,7 +122,7 @@ const useProjects = () => {
     };
 
     const { data, isLoading, error, refetch, isFetching } = useQuery({
-        queryKey: ['projects', queryParams],
+        queryKey: ['projects', queryParams, user?._id], // Add user ID to query key
         queryFn: async () => {
             const filters = {
                 ...queryParams,
@@ -144,12 +146,13 @@ const useProjects = () => {
         retry: 1,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
+        enabled: !!user, // Only run query if user is logged in
     });
 
-    const createProject = async (formData: FormData) => {
+    const createProject = async (projectData: ProjectCreateData) => {
         setIsCreating(true);
         try {
-            const response = await projectService.createProject(formData);
+            const response = await projectService.createProject(projectData);
             await refetch();
             return response;
         } finally {

@@ -60,16 +60,16 @@ const userSchema = new mongoose.Schema(
           ref: "Project",
         },
       ],
-      // Projects where user is assigned as a technician
-      asTechnician: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Project",
-        },
-      ],
     },
+    // Track tasks assigned to this user
+    assignedTasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // Keep this method for password verification during login
@@ -96,5 +96,24 @@ userSchema.virtual("allProjects").get(function () {
   // Remove duplicates (in case a user has multiple roles in the same project)
   return [...new Set(allProjects)];
 });
+
+// Add a method to check if user is involved in a project
+userSchema.methods.isInvolvedInProject = function (projectId) {
+  const stringId = projectId.toString();
+
+  // Check each role array for the project ID
+  return (
+    (this.projects.asClient &&
+      this.projects.asClient.some((id) => id.toString() === stringId)) ||
+    (this.projects.asProjectManager &&
+      this.projects.asProjectManager.some(
+        (id) => id.toString() === stringId
+      )) ||
+    (this.projects.asStockManager &&
+      this.projects.asStockManager.some((id) => id.toString() === stringId)) ||
+    (this.projects.asTechnician &&
+      this.projects.asTechnician.some((id) => id.toString() === stringId))
+  );
+};
 
 export default mongoose.model("User", userSchema);

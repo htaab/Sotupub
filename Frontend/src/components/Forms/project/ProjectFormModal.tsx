@@ -122,17 +122,17 @@ const ProjectFormModal = ({ message, project }: ProjectFormModalProps) => {
     useEffect(() => {
         if (project && open) {
             // Extract the correct IDs based on whether client/manager is a string or object
-            const clientId = typeof project.client === 'string' ? project.client : project.client._id;
-            const projectManagerId = typeof project.projectManager === 'string'
+            const clientId = project.client ? (typeof project.client === 'string' ? project.client : project.client._id) : "";
+            const projectManagerId = project.projectManager ? (typeof project.projectManager === 'string'
                 ? project.projectManager
-                : project.projectManager._id;
+                : project.projectManager._id) : "";
 
             // Handle stockManager safely - it might be undefined
             let stockManagerId = "";
             if (project.stockManager) {
                 stockManagerId = typeof project.stockManager === 'string'
                     ? project.stockManager
-                    : project.stockManager._id;
+                    : project.stockManager._id || "";
             }
 
             const projectProducts = project.products?.length
@@ -249,6 +249,7 @@ const ProjectFormModal = ({ message, project }: ProjectFormModalProps) => {
 
             queryClient.invalidateQueries({ queryKey: ["projects"] });
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["projects-calendar"] });
             setOpen(false);
         } catch (error) {
             if (error instanceof Error) {

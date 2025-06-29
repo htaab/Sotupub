@@ -4,7 +4,12 @@ import { userService } from '@/services/userService';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 
-export const useUsers = () => {
+interface UseUsersOptions {
+    enabled?: boolean;
+}
+
+export const useUsers = (options: UseUsersOptions = {}) => {
+    const { enabled = true } = options;
     const [searchParams, setSearchParams] = useSearchParams();
     const [isCreating, setIsCreating] = useState(false);
 
@@ -124,6 +129,7 @@ export const useUsers = () => {
         retry: 1,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
+        enabled: enabled,
     });
 
     const createUser = async (formData: FormData) => {

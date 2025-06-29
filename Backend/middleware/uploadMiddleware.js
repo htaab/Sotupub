@@ -7,8 +7,9 @@ const uploadsDir = path.join(process.cwd(), "uploads");
 const userUploadsDir = path.join(uploadsDir, "users");
 const documentsDir = path.join(uploadsDir, "documents");
 const productsDir = path.join(uploadsDir, "products");
+const taskAttachmentsDir = path.join(uploadsDir, "tasks"); // Add this line
 
-[uploadsDir, userUploadsDir, documentsDir, productsDir].forEach((dir) => {
+[uploadsDir, userUploadsDir, documentsDir, productsDir, taskAttachmentsDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -21,6 +22,8 @@ const storage = multer.diskStorage({
       cb(null, productsDir);
     } else if (req.originalUrl.includes("/users")) {
       cb(null, userUploadsDir);
+    } else if (req.originalUrl.includes("/tasks")) {
+      cb(null, taskAttachmentsDir);
     } else {
       cb(null, documentsDir);
     }
@@ -39,6 +42,8 @@ const storage = multer.diskStorage({
       prefix = "product";
     } else if (req.originalUrl.includes("/users")) {
       prefix = "profile";
+    } else if (req.originalUrl.includes("/tasks")) {
+      prefix = "task";
     }
     cb(
       null,

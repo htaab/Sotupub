@@ -68,10 +68,18 @@ export const projectService = {
 
     getProject: async (projectId: string): Promise<Project> => {
         try {
+            if (!projectId) {
+                throw new Error('Project ID is required');
+            }
+
             const response = await api.get<ProjectResponse>(`/projects/${projectId}`);
 
             if (!response.data.success) {
                 throw new Error(response.data.message || 'Failed to fetch project');
+            }
+
+            if (!response.data.data) {
+                throw new Error('Project not found');
             }
 
             return response.data.data;
