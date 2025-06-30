@@ -4,6 +4,7 @@ import { Badge } from "../ui/badge";
 import { useState } from "react";
 import TaskModal from "./TaskModal";
 import { Project } from "@/types/project";
+import { useAuthStore } from "@/store/auth-store";
 
 interface TaskCardProps {
     task: Task;
@@ -42,11 +43,13 @@ const getTimeRemaining = (endDateStr: string) => {
 
 const TaskCard = ({ task, onTaskUpdate, project }: TaskCardProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuthStore();
+    const isAssignedTechnician = typeof (task.assignedTo) === "string" ? task.assignedTo === user?._id : task.assignedTo._id === user?._id;
 
     return (
         <>
             <Card
-                className="cursor-pointer hover:shadow-md transition-shadow py-2"
+                className={`cursor-pointer hover:shadow-md transition-shadow py-2 ${isAssignedTechnician && "border border-green-200"}`}
                 onClick={() => setIsModalOpen(true)}
             >
                 <CardContent className="px-3 py-0">

@@ -103,7 +103,7 @@ const TaskBoard = ({ tasks, onTaskUpdate, project }: TaskBoardProps) => {
                 }
             } catch (error) {
                 console.error('Error updating task position:', error);
-                toast.error('Failed to update task position');
+                toast.error(error instanceof Error ? error.message : "failed to update task position");
                 // Rollback on error
                 setLocalTasks(tasks);
             } finally {

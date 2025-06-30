@@ -20,6 +20,7 @@ import productRoutes from "./routes/productRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import statisticsRoutes from "./routes/statisticsRoutes.js";
 
 // Services
 import notificationService from "./services/notificationService.js";
@@ -88,6 +89,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/statistics", statisticsRoutes);
 
 // Error handling
 app.use(notFound);

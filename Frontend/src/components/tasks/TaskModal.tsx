@@ -556,29 +556,31 @@ const TaskModal = ({ task, isOpen, onClose, onTaskUpdate, project }: TaskModalPr
                                         >
                                             View
                                         </Button>
-                                        <DeleteEntityModal
-                                            entity={{ _id: attachment._id, name: attachment.name }}
-                                            entityName={attachment.name}
-                                            entityType="Attachment"
-                                            deleteFunction={async (id) => {
-                                                try {
-                                                    const response = await taskService.deleteAttachment(task._id, [id]);
-                                                    const updatedTask = response.data;
-                                                    setLocalTask(updatedTask);
-                                                    if (onTaskUpdate) onTaskUpdate();
-                                                    return { success: true };
-                                                } catch (error) {
-                                                    console.error('Error deleting attachment:', error);
-                                                    return { success: false, message: 'Failed to delete attachment' };
+                                        {canDelete &&
+                                            <DeleteEntityModal
+                                                entity={{ _id: attachment._id, name: attachment.name }}
+                                                entityName={attachment.name}
+                                                entityType="Attachment"
+                                                deleteFunction={async (id) => {
+                                                    try {
+                                                        const response = await taskService.deleteAttachment(task._id, [id]);
+                                                        const updatedTask = response.data;
+                                                        setLocalTask(updatedTask);
+                                                        if (onTaskUpdate) onTaskUpdate();
+                                                        return { success: true };
+                                                    } catch (error) {
+                                                        console.error('Error deleting attachment:', error);
+                                                        return { success: false, message: 'Failed to delete attachment' };
+                                                    }
+                                                }}
+                                                queryKeys={[['tasks', localTask.project]]}
+                                                triggerButton={
+                                                    <Button size="sm" variant="destructive">
+                                                        Delete
+                                                    </Button>
                                                 }
-                                            }}
-                                            queryKeys={[['tasks', localTask.project]]}
-                                            triggerButton={
-                                                <Button size="sm" variant="destructive">
-                                                    Delete
-                                                </Button>
-                                            }
-                                        />
+                                            />
+                                        }
                                     </div>
                                 </div>
                             ))}
@@ -602,29 +604,31 @@ const TaskModal = ({ task, isOpen, onClose, onTaskUpdate, project }: TaskModalPr
                                         >
                                             View
                                         </Button>
-                                        <DeleteEntityModal
-                                            entity={{ _id: evidence._id, name: evidence.originalName }}
-                                            entityName={evidence.originalName}
-                                            entityType="Work Evidence"
-                                            deleteFunction={async (id) => {
-                                                try {
-                                                    const response = await taskService.removeWorkEvidence(task._id, [id]);
-                                                    const updatedTask = response.data;
-                                                    setLocalTask(updatedTask);
-                                                    if (onTaskUpdate) onTaskUpdate();
-                                                    return { success: true };
-                                                } catch (error) {
-                                                    console.error('Error deleting work evidence:', error);
-                                                    return { success: false, message: 'Failed to delete work evidence' };
+                                        {canDelete &&
+                                            <DeleteEntityModal
+                                                entity={{ _id: evidence._id, name: evidence.originalName }}
+                                                entityName={evidence.originalName}
+                                                entityType="Work Evidence"
+                                                deleteFunction={async (id) => {
+                                                    try {
+                                                        const response = await taskService.removeWorkEvidence(task._id, [id]);
+                                                        const updatedTask = response.data;
+                                                        setLocalTask(updatedTask);
+                                                        if (onTaskUpdate) onTaskUpdate();
+                                                        return { success: true };
+                                                    } catch (error) {
+                                                        console.error('Error deleting work evidence:', error);
+                                                        return { success: false, message: 'Failed to delete work evidence' };
+                                                    }
+                                                }}
+                                                queryKeys={[['tasks', localTask.project]]}
+                                                triggerButton={
+                                                    <Button size="sm" variant="destructive">
+                                                        Delete
+                                                    </Button>
                                                 }
-                                            }}
-                                            queryKeys={[['tasks', localTask.project]]}
-                                            triggerButton={
-                                                <Button size="sm" variant="destructive">
-                                                    Delete
-                                                </Button>
-                                            }
-                                        />
+                                            />
+                                        }
                                     </div>
                                 </div>
                             ))}

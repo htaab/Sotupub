@@ -1252,6 +1252,15 @@ const updateTaskPosition = async (req, res) => {
       });
     }
 
+    if (req.user.role === "technician") {
+      if (task.assignedTo.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "You are not assigned to this task",
+        });
+      }
+    }
+
     // Update task status
     task.status = status;
     task.lastUpdatedBy = req.user._id;

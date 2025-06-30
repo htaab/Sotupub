@@ -135,7 +135,7 @@ const routes = [
       {
         path: "/projects/:projectId/Tasks",
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'project manager', 'technician']}>
+          <ProtectedRoute allowedRoles={['admin', 'project manager', 'technician', "client"]}>
             <ProjectTasks />
           </ProtectedRoute>
         )

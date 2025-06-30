@@ -609,7 +609,13 @@ router.delete("/:taskId/evidence", protect, removeWorkEvidence);
  *                 type: string
  *                 enum: [To Do, In Progress, In Review, Completed]
  */
-router.patch("/:taskId/position", protect, updateTaskPosition);
+router
+  .route("/:taskId/position")
+  .patch(
+    protect,
+    authorize("admin", "technician", "project manager"),
+    updateTaskPosition
+  );
 
 // Comment routes
 router.post("/:taskId/comments", protect, addTaskComment);
